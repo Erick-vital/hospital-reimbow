@@ -47,10 +47,11 @@ def test_migration_idempotent_and_matches_models(database, monkeypatch):
     command.upgrade(config, "head")
     command.check(config)
     assert set(inspect(database.engine).get_table_names()) == {
-        "alembic_version", "institutional_users", "roles", "permissions", "user_roles", "role_permissions", "audit_events", "patients", "patient_identifiers", "patient_searches", "admissions"
+        "alembic_version", "institutional_users", "roles", "permissions", "user_roles", "role_permissions", "audit_events", "patients", "patient_identifiers", "patient_searches", "admissions",
+        "patient_administrative_profiles", "patient_administrative_items", "patient_identity_verifications", "patient_verification_evidence", "admission_sites", "admission_services", "admission_intakes"
     }
     with database.engine.connect() as connection:
-        assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "0004"
+        assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "0005"
 
 
 def test_ready_against_real_postgresql(database):

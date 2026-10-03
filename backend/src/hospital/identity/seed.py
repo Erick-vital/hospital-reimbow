@@ -7,6 +7,7 @@ from hospital.authorization.models import Permission, Role, RolePermission, User
 from hospital.authorization.service import PERMISSIONS
 from hospital.core.config import Settings
 from hospital.identity.models import User
+from hospital.administrative.seed import seed_catalogs
 
 ROLE_PERMISSIONS = {
     "admision-demo": PERMISSIONS - {"patients.verify_identity", "audit.read"},
@@ -31,6 +32,7 @@ def seed_local_identity(session: Session, settings: Settings) -> dict[str, int]:
     # La bandera controla HTTP, no la preparación explícita de datos locales.
     # begin exige una sesión limpia y revierte toda la semilla ante discrepancias.
     with session.begin():
+        seed_catalogs(session)
         for code in sorted(PERMISSIONS):
             session.execute(insert(Permission).values(code=code).on_conflict_do_nothing(index_elements=["code"]))
         permissions = {p.code: p.id for p in session.scalars(select(Permission).where(Permission.code.in_(PERMISSIONS)))}

@@ -18,12 +18,16 @@ def snapshot(patient: Patient) -> dict:
     return data
 
 
-def search_patients(session: Session, *, actor: Actor, request_id: UUID, filters: SearchFilters) -> dict:
+def search_patients(session: Session, *, actor: Actor, request_id: UUID, filters: SearchFilters, project=None) -> dict:
     authorize(actor, 'patients.search')
     with session.begin():
         criteria = []
         if filters.unidentified:
-            criteria.append(False)
+            if project is None:
+                criteria.append(False)
+            else:
+                from hospital.administrative.models import PatientProfile
+                criteria.append(Patient.id.in_(select(PatientProfile.patient_id).where(PatientProfile.is_unidentified.is_(True))))
         if filters.folio is not None:
             criteria.append(Patient.folio == filters.folio)
         if filters.name is not None:
@@ -37,7 +41,7 @@ def search_patients(session: Session, *, actor: Actor, request_id: UUID, filters
         rows = session.execute(select(count.c[0], patient_alias).select_from(count).outerjoin(page, true())
                                .options(selectinload(patient_alias.identifiers))
                                .order_by(patient_alias.created_at, patient_alias.id)).all()
-        items = [patient_projection(actor, snapshot(p), operation='patients.search') for _, p in rows if p is not None]
+        items = [(project(session, actor, p, 'patients.search') if project else patient_projection(actor, snapshot(p), operation='patients.search')) for _, p in rows if p is not None]
         evidence = PatientSearch(actor_id=actor.id, filters=filters.evidence())
         session.add(evidence)
         session.flush()
@@ -76,14 +80,7 @@ def create_patient(session: Session, *, actor: Actor, request_id: UUID, data: Pa
     authorize(actor, operation)
     try:
         with session.begin():
-            check_search(session, actor, data)
-            pairs = [(i.system, i.value) for i in data.identifiers]
-            if pairs and session.scalar(select(PatientIdentifier.id).where(tuple_(PatientIdentifier.system, PatientIdentifier.value).in_(pairs)).limit(1)):
-                raise ApplicationError(409, 'IDENTIFIER_CONFLICT', 'Identificador ya registrado')
-            patient = Patient(**data.model_dump(exclude={'search_id', 'identifiers'}), created_by=actor.id,
-                              identifiers=[PatientIdentifier(system=i.system, value=i.value) for i in sorted(data.identifiers, key=lambda i: (i.system, i.value))])
-            session.add(patient)
-            session.flush()
+            patient = insert_patient(session, actor, data)
             values = snapshot(patient)
             record_success(session, actor=actor, action='patients.create', resource_id=patient.id, request_id=request_id, new_values=values)
             result = patient_projection(actor, values, operation=operation)
@@ -95,12 +92,26 @@ def create_patient(session: Session, *, actor: Actor, request_id: UUID, data: Pa
         raise
 
 
-def read_patient(session: Session, *, actor: Actor, request_id: UUID, patient_id: UUID) -> dict:
+def insert_patient(session: Session, actor: Actor, data: PatientCreate) -> Patient:
+    """Escritura compartida V1/V2 dentro de la transacción del servicio."""
+    check_search(session, actor, data)
+    pairs = [(i.system, i.value) for i in data.identifiers]
+    if pairs and session.scalar(select(PatientIdentifier.id).where(tuple_(PatientIdentifier.system, PatientIdentifier.value).in_(pairs)).limit(1)):
+        raise ApplicationError(409, 'IDENTIFIER_CONFLICT', 'Identificador ya registrado')
+    fields = ('identity_status', 'given_names', 'family_name', 'second_family_name', 'birth_date')
+    patient = Patient(**{f: getattr(data, f) for f in fields}, created_by=actor.id,
+                      identifiers=[PatientIdentifier(system=i.system, value=i.value) for i in sorted(data.identifiers, key=lambda i: (i.system, i.value))])
+    session.add(patient)
+    session.flush()
+    return patient
+
+
+def read_patient(session: Session, *, actor: Actor, request_id: UUID, patient_id: UUID, project=None) -> dict:
     authorize(actor, 'patients.read')
     with session.begin():
         patient = session.get(Patient, patient_id)
         if patient is None:
             raise ApplicationError(404, 'RESOURCE_NOT_FOUND', 'Recurso no encontrado')
-        result = patient_projection(actor, snapshot(patient))
+        result = project(session, actor, patient, 'patients.read') if project else patient_projection(actor, snapshot(patient))
         record_success(session, actor=actor, action='patients.read', resource_id=patient.id, request_id=request_id)
     return result

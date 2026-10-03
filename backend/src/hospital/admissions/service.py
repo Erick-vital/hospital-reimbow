@@ -27,10 +27,7 @@ def create_admission(session: Session, *, actor: Actor, request_id: UUID, data: 
     authorize(actor, 'admissions.create')
     try:
         with session.begin():
-            require_patient(session, data.patient_id)
-            admission = Admission(patient_id=data.patient_id, type=data.type, created_by=actor.id)
-            session.add(admission)
-            session.flush()
+            admission = insert_admission(session, actor, data)
             values = snapshot(admission)
             result = admission_projection(actor, values, operation='admissions.create')
             record_success(session, actor=actor, action='admissions.create', request_id=request_id,
@@ -43,19 +40,27 @@ def create_admission(session: Session, *, actor: Actor, request_id: UUID, data: 
         raise
 
 
-def read_admission(session: Session, *, actor: Actor, request_id: UUID, admission_id: UUID) -> dict:
+def insert_admission(session: Session, actor: Actor, data: AdmissionCreate) -> Admission:
+    require_patient(session, data.patient_id)
+    admission = Admission(patient_id=data.patient_id, type=data.type, created_by=actor.id)
+    session.add(admission)
+    session.flush()
+    return admission
+
+
+def read_admission(session: Session, *, actor: Actor, request_id: UUID, admission_id: UUID, project=None) -> dict:
     authorize(actor, 'admissions.read')
     with session.begin():
         admission = session.get(Admission, admission_id)
         if admission is None:
             raise ApplicationError(404, 'RESOURCE_NOT_FOUND', 'Recurso no encontrado')
-        result = admission_projection(actor, snapshot(admission))
+        result = project(session, actor, admission, 'admissions.read') if project else admission_projection(actor, snapshot(admission))
         record_success(session, actor=actor, action='admissions.read', request_id=request_id, resource_id=admission.id)
     return result
 
 
 def list_admissions(session: Session, *, actor: Actor, request_id: UUID, patient_id: UUID,
-                    limit: int = 20, offset: int = 0) -> dict:
+                    limit: int = 20, offset: int = 0, project=None) -> dict:
     authorize(actor, 'admissions.list')
     with session.begin():
         require_patient(session, patient_id)
@@ -65,7 +70,7 @@ def list_admissions(session: Session, *, actor: Actor, request_id: UUID, patient
         admission_alias = aliased(Admission, page)
         rows = session.execute(select(count.c[0], admission_alias).select_from(count).outerjoin(page, true())
                                .order_by(admission_alias.created_at, admission_alias.id)).all()
-        result = {'items': [admission_projection(actor, snapshot(a), operation='admissions.list') for _, a in rows if a is not None],
+        result = {'items': [(project(session, actor, a, 'admissions.list') if project else admission_projection(actor, snapshot(a), operation='admissions.list')) for _, a in rows if a is not None],
                   'total': rows[0][0], 'limit': limit, 'offset': offset}
         record_success(session, actor=actor, action='admissions.list', request_id=request_id)
     return result

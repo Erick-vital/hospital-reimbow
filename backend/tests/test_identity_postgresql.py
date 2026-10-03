@@ -119,7 +119,7 @@ def test_seed_idempotent_preserves_ids_suspensions_and_unrelated_rows(sessions):
         unrelated_id = unrelated.id
     for _ in range(2):
         with sessions() as session:
-            assert seed_local_identity(session, settings) == {"actors": 4, "roles": 3, "permissions": 8}
+            assert seed_local_identity(session, settings) == {"actors": 4, "roles": 3, "permissions": 9}
     with sessions() as session:
         assert before == {u.actor_key: u.id for u in session.scalars(select(User).where(User.actor_key.in_(ACTOR_ROLES)))}
         assert session.scalar(select(User.status).where(User.actor_key == "admision-demo")) == "inactive"

@@ -1,55 +1,59 @@
 # Estado — Reimbow HIS
 
-Actualizado: 2026-10-02.
+Actualizado: 2026-10-03.
 
 ## Objetivo activo
 
-V1: base backend local con FastAPI y PostgreSQL, completada V1-01–07.
-Solicitud vigente: continuar la siguiente fase; V1-07 validación/entrega terminada.
-Plan: [V1 base backend](plans/v1-base-backend.md).
+V2: interfaz local de Pacientes/Admisión; ejecución y ampliación autorizadas.
+Usuario aprobó recomendación administrativa con «ok hazlo entonces».
+Plan activo: [V2 interfaz y admisión](plans/v2-interfaz-admision.md).
+Base completada: [V1 backend](plans/v1-base-backend.md), commit `df01151` en main.
 Propuesta: [diseño técnico](docs/propuesta-tecninca.md).
 
 ## Avance comprobado
 
-- 21 Markdown de requerimientos; originales conservados, seis con contenido.
-- 119 RF y 58 RNF identificados; quince documentos originales vacíos.
-- Python 3.12.3, 31 dependencias con hashes; Docker/Compose disponibles.
-- PostgreSQL 18.6 local persistente; desarrollo/pruebas con usuarios separados.
-- Migraciones 0001–0004; base nueva completa y Alembic check sin divergencias.
-- Semilla idempotente: cuatro actores, tres roles y ocho permisos explícitos.
-- Pacientes: búsqueda paginada, alta provisional/verificada y lecturas autorizadas.
-- Búsqueda previa ligada a actor/datos/vigencia; reserva global UNIQUE de identificadores.
-- Desconocidos sin CURP/nacimiento/nombre inventados; UUID/folios independientes.
-- Episodios open de tres tipos; autor/fecha servidor, múltiples por paciente y listado.
-- Cambios/auditoría atómicos; denegaciones aparte y FK restrictivas.
-- 199 pruebas pasan sin omisiones: restricciones, rollback y concurrencia con barrera.
-- HTTP real: búsqueda → paciente → episodio → lectura/listado, 401/403 y auditoría.
-- Preparación repetida conserva .env (600), todas las filas y secuencias.
-- Reinicio conserva ambas bases y entidades; mismo proceso API recupera su pool.
-- Diagnóstico: 1.000 pacientes nuevos, 300 búsquedas medidas y cero errores.
-- p95 folio/nombre/TEST: 10,347/15,185/10,783 ms, concurrencia 1, sin SLA.
-- [Evidencia V1-07](docs/evidencia/v1-07-resultados.json) y [validación](docs/validacion-v1.md).
-- [Guía reproducible](docs/desarrollo-v1.md); PostgreSQL activo, APIs temporales cerradas.
+- V1-01–07 completas; 199 pruebas y recorrido HTTP comprobados en V1.
+- PostgreSQL 18.6, migraciones 0001–0005, semilla/permisos y auditoría transaccional.
+- [Validación V1](docs/validacion-v1.md) y [guía](docs/desarrollo-v1.md) conservadas.
+- V2-01: contrato/bocetos/matriz preparados; ampliación aprobada y concretada.
+- [Contrato revisión 2](docs/contrato-v2.md), [campos/reglas](docs/campos-v2.md), [bocetos](docs/bocetos-v2.html).
+- [Matriz/comandos](docs/validacion-v2.md) y [evidencia/decisiones](docs/evidencia-v2-01.md).
+- Node 20.19.5/npm 10.8.2; compatibilidad declarada de herramientas consultada.
+- V2-02A completada: perfiles/listas/desconocido, evidencia, ingreso y catálogos.
+- Lecturas V2 con permisos/correlación/auditoría; POST V2 pendiente de idempotencia.
+- A01–A08 y regresión V1: 276 pruebas pasan; HTTP real/base nueva comprobados.
+- [Evidencia/comandos V2-02A](docs/evidencia-v2-02a.md) y [resultados](docs/evidencia/v2-02a-resultados.json).
+- Filas/folios/fechas/autores V1 conservados; upgrade repetido/check sin divergencias.
+- PostgreSQL activo en loopback, volumen conservado; API temporal cerrada.
+- Sin frontend instalado ni lock/build; bases de validación ficticias conservadas.
 
 ## Decisiones vigentes
 
-- PostgreSQL desde el inicio; SQLite descartado. Imagen fijada por digest.
-- FastAPI/Pydantic/SQLAlchemy/Alembic, monolito modular y Psycopg 3 síncrono.
-- Folios por secuencias sin reinicio/reutilización; reserva no confirma identidad.
-- [Contrato revisión 4](docs/contrato-v1.md); sin fusión automática.
+- PostgreSQL desde el inicio, sin SQLite; FastAPI/Pydantic/SQLAlchemy/Alembic.
+- UUID/folios servidor; paciente distinto de episodio/expediente, sin fusión automática.
 - Identidad ficticia sólo explícita en desarrollo/test; apagada por defecto.
-- V1 excluye autenticación real, Cognito, AWS, frontend y clínica completa.
+- V2 incorpora sexo registrado/nacionalidad, teléfonos/domicilios/contactos múltiples.
+- Desconocido: descripción, rango estimado y traslado; sin inventar nacimiento/identidad.
+- Ingreso: fecha clínica, sede/servicio, procedencia y motivo; urgencias permite pendientes.
+- Verificación: nombre más nacimiento/CURP contrastados, fuente y actor/fecha servidor.
+- Declaraciones V1 sin evidencia se distinguen; rutas ampliadas /api/v2 conservan V1.
+- Proyecciones demográficas e intake sensibles requieren permisos explícitos.
+- Ausencia distingue desconocido/no proporcionado/no aplica; known no significa verificado.
+- React/TypeScript, proxy local y loopback; datos/intenciones sólo en memoria navegador.
+- Clave opcional API V1, obligatoria V2; replay 200/24 h, reservas sin reutilización.
+- Búsqueda previa V1 vence a los 15 minutos; no se consume en alta.
+- Prioridad/triage, camas, aseguradoras, cobros, adjuntos y clínica completa diferidos.
 
 ## Próximo paso y límites
 
-- V1 no tiene otra fase pendiente; revisión funcional reproducible con la guía.
-- Definir y autorizar el alcance de la siguiente versión antes de implementarla.
-- Sin idempotencia de POST, edición/borrado, firma ni supervisión avanzada.
-- Rendimiento medido sólo local; gran volumen/capacidad productiva no acreditados.
-- Warning TestClient/HTTPX documentado; lock vigente funciona.
-- Sin bloqueo actual ni aprobación manual afirmada. Git local inicializado para V1.
-- Datos ficticios conservados en hospital_test; .env privado en backend/.
-- Dos bases aisladas de validación conservadas (una vacía de intento corregido).
+- Siguiente fase: V2-02B, idempotencia PostgreSQL y publicación de POST V2.
+- Claves/versiones/replay/expiración, permisos actuales y concurrencia real por comprobar.
+- Continuar desarrollo autorizado sin otra confirmación de la misma ampliación.
+- Revisión visual de M2-01 no ejecutada; M2-02/03 pendientes.
+- V2-02B–06 pendientes; frontend y recorrido HTTP de alta V2 aún no operativos.
+- V1 sigue sin idempotencia; altas V2 sólo por servicios transaccionales comprobados.
+- Cobertura administrativa parcial; sin cumplimiento normativo ni preparación productiva afirmados.
+- Cambios previos conservados; sin commit solicitado/realizado.
 
 ## Mantenimiento
 

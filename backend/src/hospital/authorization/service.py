@@ -8,7 +8,7 @@ from hospital.core.errors import ApplicationError
 PERMISSIONS = frozenset({
     "patients.search", "patients.read", "patients.read_demographics",
     "patients.create", "patients.verify_identity", "admissions.create",
-    "admissions.read", "audit.read",
+    "admissions.read", "admissions.read_intake", "audit.read",
 })
 
 # Operaciones compuestas: un permiso de campos nunca concede acceso al recurso.
@@ -20,6 +20,7 @@ OPERATION_PERMISSIONS = {
     "admissions.create": ("admissions.create",),
     "admissions.read": ("admissions.read",),
     "admissions.list": ("admissions.read", "patients.read"),
+    "catalogs.read": ("admissions.create",),
     "audit.read": ("audit.read",),
 }
 

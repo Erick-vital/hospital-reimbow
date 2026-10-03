@@ -10,7 +10,7 @@ from hospital.core.database import Base
 
 ACTIONS = (
     "patients.search", "patients.create", "patients.read", "admissions.create",
-    "admissions.read", "admissions.list", "audit.read", "identity.read",
+    "admissions.read", "admissions.list", "audit.read", "identity.read", "catalogs.read",
 )
 
 
@@ -20,7 +20,7 @@ class AuditEvent(Base):
         CheckConstraint("action IN (" + ",".join(repr(a) for a in ACTIONS) + ")", name="action"),
         CheckConstraint("result IN ('success','denied')", name="result"),
         CheckConstraint("actor_id IS NOT NULL OR result = 'denied'", name="success_actor"),
-        CheckConstraint("resource_type IS NULL OR resource_type IN ('patients','admissions','audit','identity')", name="resource_type"),
+        CheckConstraint("resource_type IS NULL OR resource_type IN ('patients','admissions','audit','identity','catalogs')", name="resource_type"),
         CheckConstraint("jsonb_typeof(metadata) = 'object'", name="metadata_object"),
         CheckConstraint("result <> 'denied' OR (resource_id IS NULL AND metadata IN ('{\"code\":\"IDENTITY_REQUIRED\"}'::jsonb, '{\"code\":\"PERMISSION_DENIED\"}'::jsonb))", name="denied_minimal"),
         Index("ix_audit_events_created_at_id", "created_at", "id"),

@@ -28,7 +28,10 @@ Actualizar plan y estado al cerrar una etapa, cambiar una decisión, identificar
 - Backend propuesto: FastAPI, Pydantic, SQLAlchemy y Alembic; monolito modular.
 - Separar rutas, reglas de negocio, autorización y persistencia; cambios sensibles y auditoría de éxito comparten transacción.
 - Mantener migraciones reproducibles y restricciones de base para integridad y concurrencia.
-- Aplicar el alcance de `plans/v1-base-backend.md`: V1 local, sin Cognito, AWS, frontend ni flujos clínicos completos.
+- Aplicar el plan activo indicado en ESTADO.md. V1 conserva su alcance backend local
+  en `plans/v1-base-backend.md`; V2 se planifica en `plans/v2-interfaz-admision.md`
+  con frontend local y altas idempotentes, sin autenticación real, AWS ni clínica completa.
+  Un plan preparado no autoriza por sí solo iniciar su implementación.
 - No crear contraseñas propias como atajo. La identidad simulada de V1 sólo puede existir con habilitación explícita en desarrollo/pruebas y debe rechazarse en producción.
 - La autenticación futura no sustituye permisos, privilegios y asignaciones internos ni la firma clínica.
 

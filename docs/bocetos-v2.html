@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="es">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reimbow HIS · Bocetos V2</title>
+<style>
+  :root{font:16px/1.5 system-ui,sans-serif;color:#163039;background:#eff4f5}
+  *{box-sizing:border-box}body{margin:0}header{background:#153a43;color:white;padding:20px max(24px,calc((100vw - 1080px)/2))}
+  h1{font-size:24px;margin:0}h2{font-size:26px;margin:8px 0 20px}h3{margin:0 0 10px}
+  main{max-width:1080px;margin:auto;padding:24px}nav{display:flex;gap:12px;flex-wrap:wrap;margin:16px 0}
+  a{color:#056277}header a{color:#d2f2f6}button,a.button{font:inherit;cursor:pointer;display:inline-block;border:1px solid #176777;border-radius:5px;padding:10px 16px;color:#fff;background:#176777;text-decoration:none}
+  button.secondary,a.secondary{background:white;color:#175563}button:disabled{opacity:.5;cursor:default}
+  :focus-visible{outline:3px solid #bb6300;outline-offset:4px}
+  .card{background:white;border:1px solid #cbdade;border-radius:8px;padding:24px;margin:16px 0}
+  .notice{background:#fff2d7;border-left:4px solid #b67512;padding:14px;margin:16px 0}
+  .patient{background:#dceff1;border-left:5px solid #176777;padding:16px;position:sticky;top:0;z-index:1}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+  label{display:block;font-weight:600}input,select{display:block;font:inherit;border:1px solid #758d94;border-radius:4px;padding:9px;width:100%;margin:6px 0 14px}
+  header select{max-width:240px}.row{display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  table{border-collapse:collapse;width:100%;text-align:left}td,th{padding:12px 8px;border-bottom:1px solid #d5e0e3}
+  .table{overflow:auto}.tag{font-size:14px;border-radius:14px;background:#e2eef0;padding:3px 10px}
+  .muted{color:#536d75}.actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:20px}[hidden]{display:none!important}
+  footer{color:#536d75;padding:24px;border-top:1px solid #cbdade}section{scroll-margin-top:110px}
+  @media(max-width:600px){main{padding:12px}.card{padding:16px}h2{font-size:22px}}
+</style>
+<header>
+  <h1>Reimbow HIS <span class="tag" style="color:#163039">Boceto V2 · M2-01</span></h1>
+  <p>Recorrido de Pacientes y Admisión · Todos los datos son ficticios</p>
+  <label for="actor">Actor de demostración del boceto</label>
+  <select id="actor"><option>admision-demo</option><option>supervisor-demo</option><option>consulta-demo</option><option>inactivo-demo</option></select>
+  <nav aria-label="Revisión de pantallas">
+    <a href="#buscar">Búsqueda</a><a href="#nuevo">Alta nueva</a><a href="#ficha">Ficha</a><a href="#abrir">Abrir episodio</a><a href="#episodio">Episodio</a><a href="#auditoria" data-audit>Auditoría</a>
+  </nav>
+</header>
+<main>
+  <div class="notice">Prototipo de revisión ampliado: simula pantallas y errores; no consulta la API ni guarda registros. <a href="campos-v2.md">Campos y reglas</a> · <a href="contrato-v2.md">Contrato revisión 2</a> · <a href="evidencia-v2-01.md">Guion</a></div>
+  <p id="status" role="status" aria-live="polite"></p>
+  <section id="denegado" hidden class="card"><h2 tabindex="-1">Acceso no disponible</h2><p>El actor está inactivo. No se muestran datos de pacientes del contexto anterior.</p></section>
+  <section id="buscar" class="card">
+    <h2 tabindex="-1">Buscar paciente</h2><p>Revise las coincidencias antes de seleccionar una persona o registrar un paciente nuevo.</p>
+    <div class="grid"><div><label for="criterio">Buscar por</label><select id="criterio"><option>Nombre</option><option>Folio exacto</option><option>Identificador TEST</option><option>Identificador CURP</option></select></div>
+    <div><label for="busqueda">Dato de búsqueda ficticio</label><input id="busqueda" value="Persona de Prueba" autocomplete="off"></div></div>
+    <div class="actions"><button id="search">Buscar coincidencias</button><button id="empty" class="secondary">Simular sin coincidencias</button><button id="unknown" class="secondary" data-write>Registrar identidad desconocida</button></div>
+    <div id="results" hidden>
+      <h3 style="margin-top:24px">Coincidencias · 1 resultado ficticio</h3><p class="muted">Un nombre parecido no confirma identidad.</p>
+      <div class="table"><table><thead><tr><th>Folio paciente</th><th>Nombre disponible</th><th>Estado</th><th>Acción</th></tr></thead><tbody><tr><td>PAC-000000000101</td><td>Persona de Prueba Ficticia</td><td>Provisional</td><td><button id="select">Seleccionar</button></td></tr></tbody></table></div>
+      <div class="actions"><button disabled>Anterior</button><span>Página 1 de 1</span><button disabled>Siguiente</button><a class="button secondary" href="#nuevo" data-write>Registrar persona distinta</a></div>
+    </div>
+    <p id="empty-result" hidden>No hay coincidencias para esta búsqueda ficticia. <a href="#nuevo" data-write>Capturar un paciente nuevo</a>.</p>
+  </section>
+  <section id="nuevo" hidden class="card">
+    <h2 tabindex="-1">Registrar paciente</h2>
+    <div class="notice">Si perdió la respuesta de un alta antes de recargar o cambiar de actor, consulte y reconcilie antes de registrar otra vez. Un desconocido sin folio puede requerir revisión de auditoría del supervisor.</div>
+    <p id="unknown-label" hidden>Identidad desconocida: sin nombre, nacimiento ni identificadores; los datos descriptivos conocidos se capturan por separado.</p>
+    <div id="fields" class="grid">
+      <div><label for="names">Nombre(s), opcional</label><input id="names" value="Persona Nueva de Prueba" autocomplete="off"></div>
+      <div><label for="family">Primer apellido, opcional</label><input id="family" value="Ficticia" autocomplete="off"></div>
+      <div><label for="second">Segundo apellido, opcional</label><input id="second" autocomplete="off"></div>
+      <div><label for="birth">Nacimiento, opcional</label><input id="birth" type="date"></div>
+      <div><label for="system">Sistema de identificador</label><select id="system"><option value="">Sin identificador</option><option>TEST</option><option>CURP</option></select></div>
+      <div><label for="identifier">Valor, si declaró identificador</label><input id="identifier" autocomplete="off"></div>
+    </div>
+    <h3>Perfil administrativo, opcional</h3>
+    <p class="muted">Distinga valor disponible, desconocido, no proporcionado y no aplica. Un valor disponible puede estar pendiente de verificar.</p>
+    <div class="grid" id="profile-fields"></div>
+    <h3>Teléfonos</h3><div id="phones-availability"></div><div id="phones-list"></div><button id="add-phone" class="secondary">Añadir teléfono</button>
+    <h3 style="margin-top:20px">Domicilios</h3><div id="addresses-availability"></div><div id="addresses-list"></div><button id="add-address" class="secondary">Añadir domicilio</button>
+    <h3 style="margin-top:20px">Contactos de emergencia</h3><div id="contacts-availability"></div><div id="contacts-list"></div><button id="add-contact" class="secondary">Añadir contacto</button>
+    <p class="muted">Un contacto de emergencia no adquiere autorización para información clínica, representación legal ni responsabilidad de pago.</p>
+    <div id="unknown-fields" hidden><h3>Descripción del desconocido, opcional</h3><div class="grid" id="descriptors"></div><p>La edad es un rango estimado; no genera una fecha de nacimiento.</p></div>
+    <label for="identity">Estado de identidad</label><select id="identity"><option value="provisional">Provisional</option><option value="verified" data-verify>Verificada (supervisor)</option></select>
+    <div id="verification-fields" hidden class="notice"><h3>Evidencia de verificación</h3><p>Contrastar nombre completo más nacimiento o CURP. El folio interno, TEST y la cama no sirven como segunda evidencia.</p>
+      <label for="verification-second">Segundo identificador contrastado</label><select id="verification-second"><option value="birth">Fecha de nacimiento</option><option value="curp">CURP</option></select>
+      <label for="verification-source">Fuente de los dos identificadores</label><select id="verification-source"><option>Documento oficial de identificación</option><option>Documento institucional de identificación</option></select>
+      <label for="verification-reference">Referencia descriptiva de fuente, sin número completo de documento</label><input id="verification-reference" autocomplete="off">
+      <p>La fuente del boceto aplica a ambos identificadores. Actor y fecha los registra el servidor; no se capturan aquí. Los datos referidos por paciente/familiar permiten alta provisional.</p>
+    </div>
+    <p class="muted">CURP y nacimiento son opcionales; no complete datos que no conoce.</p>
+    <div class="actions"><button id="review" data-write>Buscar y revisar antes del alta</button><a class="button secondary" href="#buscar">Volver a búsqueda</a></div>
+    <div id="confirmation" hidden class="notice"><h3>Confirmar paciente nuevo</h3><p id="summary"></p><p>Coincidencias simuladas revisadas. El alta crea un paciente; después podrá abrir su episodio.</p><button id="create" data-write>Confirmar registro</button> <button id="conflict" class="secondary">Simular identificador reservado</button> <button id="expired" class="secondary">Simular búsqueda vencida</button></div>
+    <p id="form-error" role="alert"></p>
+  </section>
+  <section id="ficha" hidden>
+    <div class="patient"><strong class="patient-name">Persona de Prueba Ficticia</strong><br>Paciente <strong class="patient-folio">PAC-000000000101</strong> · <span class="patient-state">Provisional</span></div>
+    <div class="card"><h2 tabindex="-1">Ficha administrativa</h2><p>Identificación y episodios de atención</p>
+      <div data-demographics><p>Nacimiento: no proporcionado</p><p>Identificadores: ninguno declarado</p><p>Perfil administrativo y descripción: <span id="profile-summary">No proporcionados en este ejemplo.</span></p><p>La ficha de la aplicación mostrará teléfonos, domicilios, contactos y evidencia autorizados.</p></div><p data-restricted hidden>Los campos demográficos adicionales no están disponibles con sus permisos.</p>
+      <h3>Episodios</h3><div class="table"><table><thead><tr><th>Folio episodio</th><th>Tipo</th><th>Estado</th><th>Acción</th></tr></thead><tbody><tr><td>EPI-000000000201</td><td>Urgencias</td><td>Abierto</td><td><a href="#episodio">Consultar</a></td></tr></tbody></table></div>
+      <div class="actions"><a class="button" href="#abrir" data-write>Abrir nueva atención</a><a class="button secondary" href="#buscar">Cambiar paciente</a></div>
+    </div>
+  </section>
+  <section id="abrir" hidden>
+    <div class="patient"><strong class="patient-name"></strong><br>Paciente <strong class="patient-folio"></strong> · <span class="patient-state"></span></div>
+    <div class="card"><h2 tabindex="-1">Abrir episodio</h2>
+      <label for="type">Tipo de atención</label><select id="type"><option value="emergency">Urgencias</option><option value="outpatient">Consulta externa</option><option value="inpatient">Hospitalización</option></select>
+      <div class="grid" id="intake-fields"></div>
+      <p id="intake-policy" class="notice">Urgencias admite datos de ingreso pendientes. No invente fecha, sede, servicio o motivo.</p>
+      <p>Fecha/hora de ingreso en la zona local del navegador: <strong id="local-zone"></strong>. Es distinta de la fecha de registro del servidor.</p>
+      <p class="muted">Sedes/servicios del boceto son ficticios. Prioridad y triage quedan pendientes de definir; no hay clasificación clínica en esta pantalla.</p>
+      <p id="intake-error" role="alert"></p>
+      <p>Confirme el paciente identificado arriba y el tipo de atención. Cada nueva atención es un episodio independiente.</p>
+      <div class="actions"><button id="open" data-write>Confirmar apertura</button><button id="lost" class="secondary" data-write>Simular respuesta perdida</button><a class="button secondary" href="#ficha">Cancelar</a></div>
+      <div id="uncertain" hidden class="notice" role="alert"><h3>Resultado pendiente de confirmar</h3><p>El servidor pudo haber registrado el episodio. Reintente el mismo registro para confirmar su resultado. Los datos permanecen congelados.</p><button id="retry" data-write>Reintentar el mismo registro</button></div>
+    </div>
+  </section>
+  <section id="episodio" hidden>
+    <div class="patient"><strong class="patient-name"></strong><br>Paciente <strong class="patient-folio"></strong> · <span class="patient-state"></span></div>
+    <div class="card"><h2 tabindex="-1">Episodio EPI-000000000201</h2><p id="replayed" hidden class="notice">Registro confirmado por reintento. Se conserva el mismo folio de episodio.</p>
+    <p>Tipo: <strong id="episode-type">Urgencias</strong> · Estado: Abierto</p><p>Fecha de registro ficticia: 2026-10-03, 12:00 UTC</p>
+    <p data-intake id="intake-summary">Datos de ingreso pendientes en este ejemplo.</p><p data-restricted hidden>Los datos sensibles de ingreso no están disponibles con sus permisos.</p>
+    <div class="actions"><a class="button secondary" href="#ficha">Volver a ficha del paciente</a><a class="button" href="#abrir" data-write>Abrir otra atención</a></div></div>
+  </section>
+  <section id="auditoria" hidden class="card"><h2 tabindex="-1">Auditoría · supervisor-demo</h2><p>Filtros y resultados ficticios, acceso restringido.</p>
+    <div class="grid"><div><label for="action">Acción</label><select id="action"><option>admissions.create</option><option>admissions.replay</option><option>patients.create</option></select></div><div><label for="resource">UUID del recurso, opcional</label><input id="resource" placeholder="UUID ficticio"></div></div>
+    <div class="table"><table><thead><tr><th>Acción</th><th>Actor</th><th>Resultado</th></tr></thead><tbody><tr><td>admissions.create</td><td>admision-demo</td><td>success</td></tr><tr><td>admissions.replay</td><td>admision-demo</td><td>success</td></tr></tbody></table></div>
+  </section>
+</main>
+<footer>V2-01 · Navegación y datos simulados. La autorización y la idempotencia se comprobarán en las fases de implementación sobre API/PostgreSQL.</footer>
+<script>
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const sections = [...document.querySelectorAll('main > section')];
+  let unknown = false;
+  let patient = {name:'Persona de Prueba Ficticia',folio:'PAC-000000000101',state:'Provisional'};
+  function announce(text) { $('status').textContent = text; }
+  const states = [['known','Valor disponible'],['unknown','Desconocido'],['not_provided','No proporcionado'],['not_applicable','No aplica']];
+  let sequence = 0;
+  function applyState(control, input) { input.disabled = control.value !== 'known'; if (input.disabled) input.value = ''; }
+  function attachState(input) {
+    const label = document.createElement('label'); label.htmlFor = input.id + '-state'; label.textContent = 'Disponibilidad del dato';
+    const control = document.createElement('select'); control.id = input.id + '-state'; control.dataset.target = input.id;
+    for (const [value,text] of states) control.add(new Option(text,value));
+    control.value = input.value ? 'known' : 'not_provided';
+    input.before(label,control); applyState(control,input);
+    control.onchange = () => { applyState(control,input); $('confirmation').hidden = true; };
+  }
+  function field(container,id,text,type='text',options=null) {
+    const wrapper = document.createElement('div'); const label = document.createElement('label'); label.htmlFor = id; label.textContent = text;
+    const input = document.createElement(options ? 'select' : 'input'); input.id = id;
+    if (options) { input.add(new Option('Seleccione','')); for (const [value,name] of options) input.add(new Option(name,value)); }
+    else { input.type = type; input.autocomplete = 'off'; }
+    wrapper.append(label,input); container.append(wrapper); attachState(input); return input;
+  }
+  function addEntry(kind) {
+    const container = $(kind + '-list'); if (container.children.length >= 10) { announce('Máximo diez elementos por lista en V2.'); return; }
+    $(kind+'-state').value = 'known';
+    const row = document.createElement('div'); row.className = 'card'; const grid = document.createElement('div'); grid.className = 'grid';
+    const prefix = kind + '-' + (++sequence); const label = document.createElement('h3'); label.textContent = 'Elemento del borrador'; row.append(label,grid);
+    const definitions = kind === 'phones' ? [['number','Número con prefijo/extensión'],['kind','Tipo: personal, fijo, laboral u otro']] : kind === 'contacts' ? [['name','Nombre del contacto'],['relationship','Relación con el paciente'],['phone','Teléfono del contacto']] : [['kind','Tipo: principal, temporal, fiscal, correspondencia u otro'],['street','Calle'],['exterior','Número exterior'],['interior','Número interior'],['neighborhood','Colonia'],['postal','Código postal'],['municipality','Municipio'],['state','Estado/provincia'],['country','País'],['references','Referencias']];
+    for (const [name,text] of definitions) {
+      const options = name === 'kind' ? (kind === 'phones' ? [['personal','Personal'],['fixed','Fijo'],['work','Laboral'],['other','Otro']] : [['principal','Principal'],['temporary','Temporal'],['fiscal','Fiscal'],['correspondence','Correspondencia'],['other','Otro']]) : null;
+      const input = field(grid,prefix+'-'+name,text,'text',options); input.dataset.entryField = name;
+    }
+    const remove = document.createElement('button'); remove.className = 'secondary'; remove.textContent = 'Quitar del borrador'; remove.onclick = () => { row.remove(); $('confirmation').hidden = true; }; row.append(remove); container.append(row); $('confirmation').hidden = true;
+  }
+  function validateKnown(container) {
+    for (const control of container.querySelectorAll('select[data-target]')) {
+      if (control.value === 'known' && !$(control.dataset.target).value.trim()) return 'Complete el valor disponible o indique su razón de ausencia.';
+    }
+    return '';
+  }
+  ['names','family','second','birth'].forEach(id => attachState($(id)));
+  field($('profile-fields'),'registered-sex','Sexo registrado según fuente');
+  field($('profile-fields'),'nationality','Nacionalidad declarada');
+  field($('descriptors'),'apparent-sex','Sexo aparente');
+  field($('descriptors'),'age-min','Edad estimada mínima, años','number');
+  field($('descriptors'),'age-max','Edad estimada máxima, años','number');
+  field($('descriptors'),'features','Características de identificación');
+  field($('descriptors'),'patient-origin','Procedencia conocida al registro');
+  field($('descriptors'),'transferred-by','Quién realizó el traslado');
+  field($('intake-fields'),'admitted-at','Fecha/hora efectiva de ingreso','datetime-local');
+  field($('intake-fields'),'site','Sede ficticia','text',[['site-demo','Sede de demostración']]);
+  field($('intake-fields'),'service','Servicio ficticio','text',[['service-demo','Servicio de demostración (Sede de demostración)']]);
+  field($('intake-fields'),'episode-origin','Procedencia de este ingreso');
+  field($('intake-fields'),'reason','Motivo referido de atención');
+  $('local-zone').textContent = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  for (const kind of ['phones','addresses','contacts']) {
+    const label = document.createElement('label'); label.htmlFor = kind+'-state'; label.textContent = 'Disponibilidad de la lista';
+    const control = document.createElement('select'); control.id = kind+'-state'; control.dataset.listState = kind;
+    for (const [value,text] of states) control.add(new Option(text,value)); control.value = 'not_provided';
+    control.onchange = () => { if (control.value !== 'known') $(kind+'-list').replaceChildren(); $('confirmation').hidden = true; };
+    $(kind+'-availability').append(label,control);
+  }
+  $('add-phone').onclick = () => addEntry('phones'); $('add-address').onclick = () => addEntry('addresses'); $('add-contact').onclick = () => addEntry('contacts');
+  $('identity').addEventListener('change', () => { $('verification-fields').hidden = $('identity').value !== 'verified'; });
+  $('type').addEventListener('change', () => { $('intake-policy').textContent = $('type').value === 'emergency' ? 'Urgencias admite datos de ingreso pendientes.' : 'Consulta externa y hospitalización requieren fecha de ingreso, sede y servicio conocidos.'; });
+  function freezeIntake(frozen) {
+    $('intake-fields').querySelectorAll('input,select').forEach(el => el.disabled = frozen);
+    if (!frozen) $('intake-fields').querySelectorAll('select[data-target]').forEach(el => applyState(el,$(el.dataset.target)));
+  }
+  function clearUncertainty() { $('uncertain').hidden = true; $('type').disabled = false; $('open').disabled = false; $('lost').disabled = false; freezeIntake(false); }
+  function show() {
+    const actor = $('actor').value;
+    let route = location.hash.slice(1) || 'buscar';
+    if (!sections.some(s => s.id === route)) route = 'buscar';
+    if (actor === 'inactivo-demo') route = 'denegado';
+    else if ((actor === 'consulta-demo' && ['nuevo','abrir'].includes(route)) || (route === 'auditoria' && actor !== 'supervisor-demo')) { route = 'buscar'; announce('Acceso no disponible para esta acción.'); }
+    sections.forEach(s => s.hidden = s.id !== route);
+    document.querySelectorAll('[data-write]').forEach(el => el.hidden = ['consulta-demo','inactivo-demo'].includes(actor));
+    document.querySelectorAll('[data-audit]').forEach(el => el.hidden = actor !== 'supervisor-demo');
+    document.querySelectorAll('[data-demographics]').forEach(el => el.hidden = actor === 'consulta-demo');
+    document.querySelectorAll('[data-intake]').forEach(el => el.hidden = actor === 'consulta-demo');
+    document.querySelectorAll('[data-restricted]').forEach(el => el.hidden = actor !== 'consulta-demo');
+    document.querySelector('[data-verify]').disabled = actor !== 'supervisor-demo' || unknown;
+    document.querySelectorAll('.patient-name').forEach(el => el.textContent = patient.name);
+    document.querySelectorAll('.patient-folio').forEach(el => el.textContent = patient.folio);
+    document.querySelectorAll('.patient-state').forEach(el => el.textContent = patient.state);
+    const heading = $(route).querySelector('h2'); if (heading) heading.focus();
+  }
+  function go(route) { if (location.hash === '#' + route) show(); else location.hash = route; }
+  function prepare(anonymous) {
+    unknown = anonymous; $('fields').hidden = anonymous; $('unknown-label').hidden = !anonymous;
+    $('unknown-fields').hidden = !anonymous; $('verification-fields').hidden = true;
+    if (anonymous) ['names','family','second','birth'].forEach(id => { $(id+'-state').value = 'unknown'; applyState($(id+'-state'),$(id)); });
+    $('identity').value = 'provisional'; $('identity').disabled = anonymous;
+    $('confirmation').hidden = true; $('form-error').textContent = ''; go('nuevo');
+  }
+  $('actor').addEventListener('change', () => {
+    patient = {name:'Persona de Prueba Ficticia',folio:'PAC-000000000101',state:'Provisional'};
+    document.querySelectorAll('main input').forEach(el => el.value = '');
+    document.querySelectorAll('select[data-target]').forEach(el => { el.value = 'not_provided'; applyState(el,$(el.dataset.target)); });
+    document.querySelectorAll('select[data-list-state]').forEach(el => el.value = 'not_provided');
+    ['phones-list','addresses-list','contacts-list'].forEach(id => $(id).replaceChildren());
+    $('unknown-fields').hidden = true; $('verification-fields').hidden = true;
+    $('profile-summary').textContent = 'No proporcionados en este ejemplo.'; $('intake-summary').textContent = 'Datos de ingreso pendientes en este ejemplo.'; $('intake-error').textContent = '';
+    $('system').value = ''; unknown = false; $('fields').hidden = false; $('unknown-label').hidden = true;
+    $('identity').value = 'provisional'; $('identity').disabled = false;
+    $('confirmation').hidden = true; $('results').hidden = true; $('empty-result').hidden = true;
+    $('form-error').textContent = ''; $('replayed').hidden = true; clearUncertainty();
+    announce('Actor cambiado: se ha limpiado el contexto del boceto.'); go('buscar');
+  });
+  $('search').onclick = () => { $('results').hidden = false; $('empty-result').hidden = true; announce('Búsqueda simulada completada.'); };
+  $('empty').onclick = () => { $('results').hidden = true; $('empty-result').hidden = false; announce('Búsqueda simulada sin coincidencias.'); };
+  $('unknown').onclick = () => prepare(true);
+  function clearIntakeDraft() {
+    clearUncertainty(); $('intake-fields').querySelectorAll('select[data-target]').forEach(el => { el.value = 'not_provided'; applyState(el,$(el.dataset.target)); });
+    $('intake-summary').textContent = 'Datos de ingreso pendientes en este ejemplo.'; $('intake-error').textContent = ''; $('replayed').hidden = true;
+  }
+  $('select').onclick = () => { patient = {name:'Persona de Prueba Ficticia',folio:'PAC-000000000101',state:'Provisional'}; $('profile-summary').textContent = 'No proporcionados en este ejemplo.'; clearIntakeDraft(); go('ficha'); };
+  document.querySelectorAll('a[href="#nuevo"]').forEach(el => el.addEventListener('click', () => prepare(false)));
+  $('nuevo').addEventListener('input', () => { $('confirmation').hidden = true; $('form-error').textContent = ''; });
+  $('review').onclick = () => {
+    const error = validateKnown($('profile-fields')) || validateKnown($('phones-list')) || validateKnown($('addresses-list')) || validateKnown($('contacts-list')) || (unknown ? validateKnown($('descriptors')) : validateKnown($('fields')));
+    if (error) { $('form-error').textContent = error; return; }
+    if ($('birth').value && new Date($('birth').value+'T00:00:00Z') > new Date()) { $('form-error').textContent = 'Nacimiento no puede ser futuro.'; return; }
+    for (const row of $('contacts-list').children) if (!row.querySelector('[data-entry-field="name"]').value.trim()) { $('form-error').textContent = 'Cada contacto requiere nombre; quite el elemento si no tiene datos.'; return; }
+    for (const row of $('phones-list').children) if (!row.querySelector('[data-entry-field="number"]').value.trim() || !row.querySelector('[data-entry-field="kind"]').value) { $('form-error').textContent = 'Cada teléfono requiere número y tipo.'; return; }
+    for (const row of $('addresses-list').children) if (!row.querySelector('[data-entry-field="kind"]').value || ![...row.querySelectorAll('input')].some(el => el.value.trim())) { $('form-error').textContent = 'Cada domicilio requiere tipo y al menos un componente.'; return; }
+    if (unknown && ($('age-min').value || $('age-max').value)) {
+      const low = Number($('age-min').value), high = Number($('age-max').value);
+      if (!$('age-min').value || !$('age-max').value || !Number.isInteger(low) || !Number.isInteger(high) || low < 0 || high > 150 || low > high) { $('form-error').textContent = 'El rango estimado requiere dos enteros entre 0 y 150, mínimo menor o igual al máximo.'; return; }
+    }
+    if ($('identity').value === 'verified') {
+      const second = $('verification-second').value === 'birth' ? Boolean($('birth').value) : $('system').value === 'CURP' && /^[A-Z0-9]{18}$/.test($('identifier').value.trim().toUpperCase());
+      if (!$('names').value.trim() || !second || !$('verification-reference').value.trim()) { $('form-error').textContent = 'Verificación requiere nombre más nacimiento/CURP contrastados y referencia de fuente.'; return; }
+    }
+    $('summary').textContent = unknown ? 'Identidad desconocida · Provisional · Sin identificadores' : [$('names').value,$('family').value,$('second').value].filter(Boolean).join(' ') + ' · ' + $('identity').selectedOptions[0].textContent;
+    $('confirmation').hidden = false; $('form-error').textContent = ''; announce('Revisión simulada lista para confirmar.');
+  };
+  $('create').onclick = () => {
+    patient = {name:unknown ? 'Identidad desconocida' : ([$('names').value,$('family').value,$('second').value].filter(Boolean).join(' ') || 'Nombre no proporcionado'),folio:'PAC-000000000102',state:$('identity').value === 'verified' ? 'Verificada' : 'Provisional'};
+    clearIntakeDraft();
+    $('profile-summary').textContent = 'Teléfonos: '+$('phones-list').children.length+'; domicilios: '+$('addresses-list').children.length+'; contactos: '+$('contacts-list').children.length+'. Valores de borrador simulados.';
+    announce('Alta simulada confirmada: PAC-000000000102.'); go('ficha');
+  };
+  $('conflict').onclick = () => { $('confirmation').hidden = true; $('form-error').textContent = 'IDENTIFIER_CONFLICT: identificador reservado. Revise la coincidencia; no se fusiona automáticamente. Correlación ficticia: 79c4400d-d668-43b6-adb0-8b71d07dbe9d.'; };
+  $('expired').onclick = () => { $('confirmation').hidden = true; $('form-error').textContent = 'SEARCH_REQUIRED: repita la búsqueda con los datos del borrador antes de confirmar.'; };
+  function validateIntake() {
+    let error = validateKnown($('intake-fields'));
+    if (!error && $('type').value !== 'emergency' && ['admitted-at','site','service'].some(id => !$(id).value)) error = 'Este tipo requiere fecha/hora de ingreso, sede y servicio.';
+    if (!error && $('service').value && !$('site').value) error = 'El servicio requiere sede conocida y coherente.';
+    if (!error && $('admitted-at').value && new Date($('admitted-at').value) > new Date()) error = 'La fecha/hora de ingreso no puede ser futura.';
+    $('intake-error').textContent = error; return !error;
+  }
+  function finish(replay) { $('replayed').hidden = !replay; $('episode-type').textContent = $('type').selectedOptions[0].textContent; $('intake-summary').textContent = 'Ingreso: '+($('admitted-at').value || 'pendiente')+'; sede: '+($('site').value ? 'Sede de demostración' : 'pendiente')+'; servicio: '+($('service').value ? 'Servicio de demostración' : 'pendiente')+'. Procedencia: '+($('episode-origin').value || 'pendiente')+'. Motivo: '+($('reason').value || 'pendiente')+'.'; clearUncertainty(); announce('Episodio simulado confirmado: EPI-000000000201.'); go('episodio'); }
+  $('open').onclick = () => { if (validateIntake()) finish(false); };
+  $('lost').onclick = () => { if (!validateIntake()) return; $('uncertain').hidden = false; $('type').disabled = true; $('open').disabled = true; $('lost').disabled = true; freezeIntake(true); announce('Respuesta perdida simulada. No hay correlación disponible.'); };
+  $('retry').onclick = () => finish(true);
+  document.querySelectorAll('a[href="#abrir"]').forEach(el => el.addEventListener('click', clearUncertainty));
+  addEventListener('hashchange', show); show();
+</script>
+</html>

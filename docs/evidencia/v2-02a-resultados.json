@@ -1,0 +1,86 @@
+{
+  "phase": "V2-02A",
+  "date_utc": "2026-10-03T18:18:10.402398+00:00",
+  "migration": {
+    "before": {
+      "development": {
+        "revision": "0004",
+        "counts": {
+          "patients": 0,
+          "patient_identifiers": 0,
+          "patient_searches": 0,
+          "admissions": 0,
+          "audit_events": 0,
+          "institutional_users": 4,
+          "roles": 3,
+          "user_roles": 4
+        },
+        "sequences": {
+          "patient_folio_seq": null,
+          "admission_folio_seq": null
+        }
+      },
+      "test": {
+        "revision": "0004",
+        "counts": {
+          "patients": 1042,
+          "patient_identifiers": 1016,
+          "patient_searches": 1380,
+          "admissions": 21,
+          "audit_events": 2701,
+          "institutional_users": 4,
+          "roles": 4,
+          "user_roles": 4
+        },
+        "sequences": {
+          "patient_folio_seq": 1299,
+          "admission_folio_seq": 85
+        }
+      }
+    },
+    "head": "0005",
+    "v1_rows_preserved": true,
+    "preparation_runs": 2,
+    "config_preserved": true
+  },
+  "fresh_database": {
+    "database": "hospital_v2_validation_981ac69d281d4a599b30b43a77ffd040",
+    "from_zero": true,
+    "upgrade_repeated": true,
+    "alembic_check": true,
+    "retained": true
+  },
+  "pytest": {
+    "tests": 276,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "http": {
+    "requests_audited": 14,
+    "tcp_loopback": true,
+    "permissions": true,
+    "no_store": true,
+    "post_v2_disabled": true,
+    "v1_compatible": true,
+    "api_stopped": true,
+    "logs_private": true,
+    "fictitious_patient_id": "14f1cedd-b1ee-4771-9448-94e49fd3ac96",
+    "fictitious_admission_id": "4fa4dcbd-e38f-4eb3-a631-d5c4f25b3135"
+  },
+  "acceptance_cases": [
+    "A01",
+    "A02",
+    "A03",
+    "A04",
+    "A05",
+    "A06",
+    "A07",
+    "A08"
+  ],
+  "limits": [
+    "POST V2 pendiente de V2-02B",
+    "Sin frontend ni validación clínica/productiva"
+  ],
+  "default_identity_enabled": false
+}

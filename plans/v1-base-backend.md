@@ -9,6 +9,8 @@ Construir una base backend local reproducible con FastAPI y PostgreSQL que demue
 Esta versión prepara infraestructura y contratos del proyecto. No constituye un HIS completo ni una versión para operación clínica. El usuario autorizó V1-01 y después continuar con V1-02–07 el 2026-10-02. No implica despliegue ni implementación de versiones posteriores.
 
 Referencia: [propuesta técnica](../docs/propuesta-tecninca.md). Continuación: [ESTADO.md](../ESTADO.md).
+Siguiente versión: [plan V2 — interfaz local de Pacientes y Admisión](v2-interfaz-admision.md),
+preparado después del commit V1; implementación pendiente de solicitud.
 
 ## Alcance
 
