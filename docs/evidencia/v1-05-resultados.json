@@ -1,0 +1,113 @@
+{
+  "phase": "V1-05",
+  "date_utc": "2026-10-03T03:13:06.164049+00:00",
+  "development": {
+    "revision": "0003",
+    "seed": {
+      "actors": 4,
+      "roles": 3,
+      "permissions": 8
+    },
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg12+2)",
+    "tables": [
+      "alembic_version",
+      "audit_events",
+      "institutional_users",
+      "patient_identifiers",
+      "patient_searches",
+      "patients",
+      "permissions",
+      "role_permissions",
+      "roles",
+      "user_roles"
+    ]
+  },
+  "test": {
+    "revision": "0003",
+    "seed": {
+      "actors": 4,
+      "roles": 3,
+      "permissions": 8
+    },
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg12+2)",
+    "tables": [
+      "alembic_version",
+      "audit_events",
+      "institutional_users",
+      "patient_identifiers",
+      "patient_searches",
+      "patients",
+      "permissions",
+      "role_permissions",
+      "roles",
+      "user_roles"
+    ]
+  },
+  "pytest": {
+    "tests": 147,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "http": {
+    "absent": {
+      "status": 401,
+      "event_persisted": true
+    },
+    "inactivo-demo": {
+      "status": 401,
+      "event_persisted": true
+    },
+    "consulta-demo": {
+      "status": 403,
+      "event_persisted": true
+    },
+    "admision-demo": {
+      "status": 403,
+      "event_persisted": true
+    },
+    "supervisor-demo": {
+      "status": 200,
+      "event_persisted": true
+    }
+  },
+  "patients_http": {
+    "create": 201,
+    "read": 200,
+    "limited_read": 200,
+    "duplicate": 409,
+    "forbidden_create": 403,
+    "searches": [
+      "folio",
+      "name_and_identifier",
+      "identifier"
+    ],
+    "unknown_patients": 2,
+    "patient_id": "f8525c83-74fa-4547-8932-91ce029abcdb",
+    "audit_persisted": true
+  },
+  "audit_mutation_endpoints": false,
+  "technical_logs_secrets_exposed": false,
+  "temporary_api_process_stopped": true,
+  "default_identity_enabled": false,
+  "clinical_resource_limit": "Pacientes reales probados con datos ficticios; episodios pendientes de V1-06.",
+  "concurrency": {
+    "connections": 2,
+    "barrier": "before_patient_insert_after_duplicate_check",
+    "identity_statuses": [
+      "provisional",
+      "verified"
+    ],
+    "statuses": [
+      201,
+      409
+    ],
+    "one_patient_one_success_event": true
+  },
+  "rollback": {
+    "actual_patient_and_event": true,
+    "audit_insert_and_after_insert_failures": true,
+    "search_evidence_and_read_fail_closed": true,
+    "folio_not_reused": true
+  }
+}

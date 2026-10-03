@@ -1,0 +1,24 @@
+name: reimbow-v1
+services:
+  postgres:
+    image: postgres:18.6-bookworm@sha256:3725f4e2499eef5134592b3b4ab79a543ed7f8e533b05b5b637af926630f6650
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Ejecuta backend/scripts/configure_local.py}
+      PG_DEV_PASSWORD: ${PG_DEV_PASSWORD:?Falta contraseña de desarrollo}
+      PG_TEST_PASSWORD: ${PG_TEST_PASSWORD:?Falta contraseña de pruebas}
+      POSTGRES_INITDB_ARGS: --auth-host=scram-sha-256
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+      - ./backend/scripts/init-databases.sh:/docker-entrypoint-initdb.d/10-databases.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    shm_size: 128mb
+volumes:
+  postgres_data:

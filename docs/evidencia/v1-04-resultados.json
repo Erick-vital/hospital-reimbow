@@ -1,0 +1,73 @@
+{
+  "phase": "V1-04",
+  "date_utc": "2026-10-03T00:39:40.785422+00:00",
+  "development": {
+    "revision": "0002",
+    "seed": {
+      "actors": 4,
+      "roles": 3,
+      "permissions": 8
+    },
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg12+2)",
+    "tables": [
+      "alembic_version",
+      "audit_events",
+      "institutional_users",
+      "permissions",
+      "role_permissions",
+      "roles",
+      "user_roles"
+    ]
+  },
+  "test": {
+    "revision": "0002",
+    "seed": {
+      "actors": 4,
+      "roles": 3,
+      "permissions": 8
+    },
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg12+2)",
+    "tables": [
+      "alembic_version",
+      "audit_events",
+      "institutional_users",
+      "permissions",
+      "role_permissions",
+      "roles",
+      "user_roles"
+    ]
+  },
+  "pytest": {
+    "tests": 85,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "http": {
+    "absent": {
+      "status": 401,
+      "event_persisted": true
+    },
+    "inactivo-demo": {
+      "status": 401,
+      "event_persisted": true
+    },
+    "consulta-demo": {
+      "status": 403,
+      "event_persisted": true
+    },
+    "admision-demo": {
+      "status": 403,
+      "event_persisted": true
+    },
+    "supervisor-demo": {
+      "status": 200,
+      "event_persisted": true
+    }
+  },
+  "audit_mutation_endpoints": false,
+  "technical_logs_secrets_exposed": false,
+  "temporary_api_process_stopped": true,
+  "default_identity_enabled": false,
+  "clinical_resource_limit": "Rollback probado con recurso ficticio de prueba; pacientes/episodios reales pendientes de V1-05/06."
+}

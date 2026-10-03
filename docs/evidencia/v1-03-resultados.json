@@ -1,0 +1,60 @@
+{
+  "phase": "V1-03",
+  "date_utc": "2026-10-02T23:03:10.005508+00:00",
+  "development": {
+    "seed": {
+      "actors": 4,
+      "roles": 3,
+      "permissions": 8
+    },
+    "stable_actor_ids": true,
+    "revision": "0001",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg12+2)"
+  },
+  "test": {
+    "seed": {
+      "actors": 4,
+      "roles": 3,
+      "permissions": 8
+    },
+    "stable_actor_ids": true,
+    "revision": "0001",
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg12+2)"
+  },
+  "pytest": {
+    "tests": 58,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "http": {
+    "development_identity_True": {
+      "absent": 401,
+      "desconocido-demo": 401,
+      "inactivo-demo": 401,
+      "admision-demo": 200,
+      "supervisor-demo": 200,
+      "consulta-demo": 200
+    },
+    "development_identity_False": {
+      "absent": 401,
+      "desconocido-demo": 401,
+      "inactivo-demo": 401,
+      "admision-demo": 401,
+      "supervisor-demo": 401,
+      "consulta-demo": 401
+    },
+    "production_identity_False": {
+      "absent": 401,
+      "desconocido-demo": 401,
+      "inactivo-demo": 401,
+      "admision-demo": 401,
+      "supervisor-demo": 401,
+      "consulta-demo": 401
+    }
+  },
+  "production_simulated_startup_rejected": true,
+  "api_logs_credentials_exposed": false,
+  "temporary_api_processes_stopped": true,
+  "default_identity_enabled": false
+}

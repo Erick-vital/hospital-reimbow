@@ -1,0 +1,99 @@
+{
+  "phase": "V1-06",
+  "date_utc": "2026-10-03T03:22:33.001401+00:00",
+  "development": {
+    "revision": "0004",
+    "seed": {
+      "actors": 4,
+      "roles": 3,
+      "permissions": 8
+    },
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg12+2)",
+    "tables": [
+      "admissions",
+      "alembic_version",
+      "audit_events",
+      "institutional_users",
+      "patient_identifiers",
+      "patient_searches",
+      "patients",
+      "permissions",
+      "role_permissions",
+      "roles",
+      "user_roles"
+    ]
+  },
+  "test": {
+    "revision": "0004",
+    "seed": {
+      "actors": 4,
+      "roles": 3,
+      "permissions": 8
+    },
+    "postgresql_version": "18.6 (Debian 18.6-1.pgdg12+2)",
+    "tables": [
+      "admissions",
+      "alembic_version",
+      "audit_events",
+      "institutional_users",
+      "patient_identifiers",
+      "patient_searches",
+      "patients",
+      "permissions",
+      "role_permissions",
+      "roles",
+      "user_roles"
+    ]
+  },
+  "pytest": {
+    "tests": 199,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "identified_patient": {
+    "patient_id": "e892ef53-9215-4542-b171-dfc837fb1802",
+    "episodes": 4,
+    "duplicate_type_allowed": true,
+    "list_total": 4,
+    "persisted": true
+  },
+  "unknown_patient": {
+    "patient_id": "128e9b01-ca7d-4596-8bed-0feaadd55521",
+    "episodes": 4,
+    "duplicate_type_allowed": true,
+    "list_total": 4,
+    "persisted": true
+  },
+  "http": {
+    "create": 201,
+    "read": 200,
+    "list": 200,
+    "absent_identity": 401,
+    "forbidden_create_before_lookup": 403,
+    "missing_patient": 404,
+    "audit_persisted": true
+  },
+  "concurrency": {
+    "connections": 2,
+    "barrier": "before_admission_insert",
+    "same_patient_same_type": true,
+    "independent_ids_and_folios": true,
+    "two_episodes_two_success_events": true
+  },
+  "rollback": {
+    "actual_admission_and_event": true,
+    "audit_insert_and_after_insert_failures": true,
+    "reads_fail_closed": true,
+    "folio_not_reused": true
+  },
+  "integrity": {
+    "patient_delete_restricted": true,
+    "missing_reference_race_controlled": 404,
+    "folio_unique": true,
+    "type_status_fk_not_null_checks": true
+  },
+  "default_identity_enabled": false,
+  "temporary_api_process_stopped": true,
+  "technical_logs_secrets_exposed": false
+}
