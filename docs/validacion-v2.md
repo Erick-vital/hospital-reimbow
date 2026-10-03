@@ -113,15 +113,17 @@ del registro de prueba, sin cambiar el reloj del sistema ni esperar 24 horas.
 - M2-01: ampliación de campos/reglas aprobada con «ok hazlo entonces» y concretada
   en revisión 2; [bocetos](bocetos-v2.html) y [guion](evidencia-v2-01.md) actualizados.
   No atribuir revisión visual ejecutada ni aceptación clínica; desarrollo autorizado.
-- M2-02: pendiente de frontend/lecturas implementados y comandos reales comprobados.
+- M2-02: preparada con comandos, datos y guion en [evidencia V2-04](evidencia-v2-04.md); revisión humana pendiente.
 - M2-03: pendiente de recorrido completo/pruebas y respuesta explícita del usuario.
 
 Cada resultado futuro indicará caso, versión, comando, conteos, resultado y límites.
 Esta matriz conserva la cobertura prevista; A01–A08 tienen evidencia de
 ejecución V2-02A; I01–I13, A09 y R01 pasan en
-[evidencia V2-02B](evidencia-v2-02b.md). Base navegador V2-03 comprobada: F01 y base F04/F05; escenarios completos
-de búsqueda/ficha/altas se completan en V2-04–06. M2-01/02/03 no se consideran revisiones ejecutadas.
+[evidencia V2-02B](evidencia-v2-02b.md). Base navegador V2-03 comprobada: F01 y base F04/F05; búsqueda/ficha/lecturas V2-04 comprobadas con 26 pruebas de navegador y 316 backend.
+F02/F03/F04 lecturas/A07 UI acreditados en [evidencia V2-04](evidencia-v2-04.md);
+altas/borradores siguen en V2-05/06. M2-01/02/03 no se consideran revisiones ejecutadas.
 
 Validación vigente del backend: `backend/.venv/bin/python backend/scripts/verify_v2_02b.py`.
 
-Validación de base frontend vigente: `backend/.venv/bin/python backend/scripts/verify_v2_03.py`.
+Validación frontend/lecturas vigente: `backend/.venv/bin/python backend/scripts/verify_v2_04.py`.
+La evidencia y el verificador de V2-03 se conservan como base histórica.

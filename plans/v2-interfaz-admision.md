@@ -2,8 +2,8 @@
 
 Fecha: 2026-10-02. Actualizado: 2026-10-03. Estado: V2-01 completada técnicamente;
 ampliación administrativa aprobada el 2026-10-03 y concretada en contrato revisión 2.
-V2-02A, V2-02B y V2-03 completadas técnicamente el 2026-10-03.
-Revisión visual humana no realizada. Siguiente fase: **V2-04 — Búsqueda, ficha y episodios de lectura**.
+V2-02A, V2-02B, V2-03 y V2-04 completadas técnicamente el 2026-10-03.
+Revisión visual humana no realizada; M2-02 preparada. Siguiente fase: **V2-05 — Registro y apertura de episodios**.
 Base: V1-01–07 completadas, commit `df01151` en la rama local `main`.
 
 ## Objetivo y autorización
@@ -347,16 +347,33 @@ Commit previo solicitado: `6e2c926`; entrega V2-03 guardada en Git por solicitud
 
 ### V2-04 — Búsqueda, ficha y episodios de lectura
 
+Estado: **completada técnicamente el 2026-10-03**; M2-02 preparada, revisión humana pendiente.
 Depende de V2-03 y de las lecturas/catálogos completados en V2-02A.
+El usuario autorizó continuar esta fase explícitamente.
 
-- [ ] Filtros de V1, candidatos, paginación y selección sin fusión automática.
-- [ ] Ficha ampliada autorizada y listado/consulta de episodios; intake sólo con
+- [x] Filtros de V1, candidatos, paginación y selección sin fusión automática.
+- [x] Ficha ampliada autorizada y listado/consulta de episodios; intake sólo con
   admissions.read_intake y calidad de verificación visible sin revelar evidencia.
-- [ ] Identificación permanente y cancelación de resultados fuera de contexto.
-- [ ] Recarga/URL directa, 401/403/404 y límites de campos para consulta-demo.
+- [x] Identificación permanente y cancelación de resultados fuera de contexto.
+- [x] Recarga/URL directa, 401/403/404 y límites de campos para consulta-demo.
 
 Aceptación: datos coinciden con API; demografía restringida no aparece en UI/cachés,
 una búsqueda atrasada no sustituye la vigente y los folios se distinguen. M2-02 preparada.
+
+Entregados: buscador con filtros/páginas/selección, ficha ampliada, caracterización
+del desconocido, calidad de verificación, episodios paginados e ingreso por permiso;
+cabecera persistente y descarte de datos/errores de consultas anteriores.
+26 pruebas de navegador/API/PostgreSQL y 316 backend pasan, sin fallos ni omisiones.
+Typecheck/builds false/true sin demo/credenciales; lock/configuración/filas previas
+conservados. Datos ficticios sólo en hospital_test; procesos temporales cerrados.
+Sede/servicio conocidos muestran UUID: catálogo exige admissions.create; no ampliar
+permisos de lectura para obtener nombres. Filtro desconocido usa declaración V2
+explícita, sin deducir condición de registros V1. Formularios siguen en V2-05.
+[Evidencia y guion M2-02](../docs/evidencia-v2-04.md),
+[resultados](../docs/evidencia/v2-04-resultados.json),
+[guía](../docs/desarrollo-v2.md) y verificador
+`backend/.venv/bin/python backend/scripts/verify_v2_04.py`.
+Capturas inspeccionadas por el agente, sin atribuir revisión humana ni aceptación clínica.
 
 ### V2-05 — Registro y apertura de episodios
 
@@ -429,10 +446,11 @@ ninguna casilla se marca por tener sólo un documento, endpoint o captura.
 
 ## Próximo paso
 
-La siguiente fase es **V2-04**, búsqueda, ficha administrativa ampliada y episodios,
-sin pedir confirmación repetida para el alcance ya aprobado.
-M2-01 conserva revisión visual humana pendiente. M2-02 se prepara al completar V2-04.
-V2-03 acreditada en [evidencia](../docs/evidencia-v2-03.md); arranque en
-[guía V2](../docs/desarrollo-v2.md). PostgreSQL sigue en loopback; procesos temporales
-cerrados e identidad backend apagada por defecto. Frontend base/POST V2/idempotencia
-comprobados; buscador/ficha completa/formularios pendientes, sin aceptación clínica.
+La siguiente fase es **V2-05**, registro ampliado y apertura de episodios idempotentes,
+con búsqueda vigente, borradores en memoria y confirmación de paciente/tipo.
+Alcance autorizado; no pedir confirmación repetida para la ampliación aprobada.
+M2-01 conserva revisión visual humana pendiente; M2-02 preparada con guion y datos en
+[evidencia V2-04](../docs/evidencia-v2-04.md), sin respuesta humana registrada.
+PostgreSQL sigue en loopback, procesos temporales cerrados e identidad por defecto
+apagada. Las lecturas completas están comprobadas; formularios y auditoría visual
+siguen pendientes. No atribuir aceptación funcional ni clínica.

@@ -6,11 +6,11 @@ import { ErrorNotice, Loading } from './components/Feedback'
 import { Heading } from './components/Heading'
 import { useResource } from './components/useResource'
 import { Session } from './identity/session'
+import { AdmissionDetails, EpisodeList, PatientBanner, PatientDetails, PatientSearch, has } from './patients/ReadViews'
 import type { SessionSnapshot } from './identity/session'
 
 const DemoSelector = import.meta.env.DEV && import.meta.env.VITE_DEMO_IDENTITY === 'true' ? lazy(() => import('./identity/DemoSelector')) : null
 const uuid = /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i
-const has = (identity: Identity | null, ...permissions: string[]) => permissions.every(p => identity?.permissions.includes(p))
 
 function EmptyArea({ title, description }: { title: string; description: string }) {
   return <section className="card area-card">
@@ -23,24 +23,17 @@ function EmptyArea({ title, description }: { title: string; description: string 
   </section>
 }
 
-function PatientBanner({ patient }: { patient: PatientContext }) {
-  const name = [patient.given_names, patient.family_name, patient.second_family_name].filter(Boolean).join(' ')
-  return <section className="patient-banner" aria-label="Paciente del contexto actual">
-    <span className="avatar" aria-hidden="true">{name ? name.slice(0, 1) : '?'}</span>
-    <div><div className="section-label">Paciente</div><strong>{name || 'Identidad no informada'}</strong><div className="folio">{patient.folio}</div></div>
-    <span className="tag">{patient.identity_status === 'verified' ? 'Identidad declarada verificada' : 'Identidad provisional'}</span>
-  </section>
-}
-
-function PatientArea({ session, createAdmission = false }: { session: Session; createAdmission?: boolean }) {
+function PatientArea({ session, identity, createAdmission = false }: { session: Session; identity: Identity; createAdmission?: boolean }) {
   const { patientId } = useParams()
   const validId = patientId && uuid.test(patientId)
   const { data, error } = useResource<PatientContext>(session, validId ? `/api/v2/patients/${patientId}` : null)
   if (!validId) return <ErrorNotice error={new ApiError(404, 'RESOURCE_NOT_FOUND')} />
   if (error) return <ErrorNotice error={error} retry={session.refresh} />
   if (!data) return <Loading message="Resolviendo el paciente…" />
-  return <><PatientBanner patient={data} /><EmptyArea title={createAdmission ? 'Abrir episodio' : 'Ficha de paciente'}
-    description={createAdmission ? 'Cada atención se vincula al paciente identificado en esta página.' : 'Información administrativa del paciente y sus atenciones.'} /></>
+  return <><PatientBanner patient={data} />{createAdmission ? <EmptyArea title="Abrir episodio" description="Cada atención se vincula al paciente identificado en esta página." /> : <>
+    <PatientDetails patient={data} identity={identity} />
+    {has(identity, 'admissions.read') ? <EpisodeList session={session} patientId={data.id} /> : <p>No tienes permiso para consultar los episodios.</p>}
+  </>}</>
 }
 
 function AdmissionArea({ session, identity }: { session: Session; identity: Identity }) {
@@ -62,6 +55,7 @@ function ResolvedAdmission({ session, admission, identity }: { session: Session;
     <section className="card"><div className="section-label">Episodio de atención</div>
       <Heading>{admission.folio}</Heading>
       <p className="lead">{({ emergency: 'Urgencias', outpatient: 'Consulta externa', inpatient: 'Hospitalización' })[admission.type]} · Abierto</p>
+      <AdmissionDetails admission={admission} identity={identity} />
       {!canReadPatient && <p>No tienes permiso para consultar la identificación del paciente.</p>}
       {data && <Link className="text-link" to={`/patients/${data.id}`}>Volver al paciente</Link>}
     </section>
@@ -75,10 +69,10 @@ function Gate({ identity, permissions, children }: { identity: Identity; permiss
 function Areas({ session, identity }: { session: Session; identity: Identity }) {
   return <Routes>
     <Route path="/" element={<Navigate to="/patients" replace />} />
-    <Route path="/patients" element={<Gate identity={identity} permissions={['patients.search']}><EmptyArea title="Pacientes" description="Un punto de partida para identificar al paciente y mantener sus atenciones relacionadas." /></Gate>} />
+    <Route path="/patients" element={<Gate identity={identity} permissions={['patients.search']}><PatientSearch session={session} identity={identity} /></Gate>} />
     <Route path="/patients/new" element={<Gate identity={identity} permissions={['patients.create', 'patients.search']}><EmptyArea title="Registrar paciente" description="La búsqueda de coincidencias precede a cada registro nuevo." /></Gate>} />
-    <Route path="/patients/:patientId" element={<Gate identity={identity} permissions={['patients.read']}><PatientArea session={session} /></Gate>} />
-    <Route path="/patients/:patientId/admissions/new" element={<Gate identity={identity} permissions={['patients.read', 'admissions.create']}><PatientArea session={session} createAdmission /></Gate>} />
+    <Route path="/patients/:patientId" element={<Gate identity={identity} permissions={['patients.read']}><PatientArea session={session} identity={identity} /></Gate>} />
+    <Route path="/patients/:patientId/admissions/new" element={<Gate identity={identity} permissions={['patients.read', 'admissions.create']}><PatientArea session={session} identity={identity} createAdmission /></Gate>} />
     <Route path="/admissions/:admissionId" element={<Gate identity={identity} permissions={['admissions.read']}><AdmissionArea session={session} identity={identity} /></Gate>} />
     <Route path="/audit" element={<Gate identity={identity} permissions={['audit.read']}><EmptyArea title="Auditoría" description="Consulta restringida a los actores autorizados." /></Gate>} />
     <Route path="*" element={<ErrorNotice error={new ApiError(404, 'RESOURCE_NOT_FOUND')} />} />

@@ -96,6 +96,28 @@ try {
       await page.screenshot({ path: resolve(destination, 'v2-03-base-movil.png'), fullPage: true })
     } finally { await browser.close() }
   }
+  if (process.env.V2_CAPTURE_READ === 'true') {
+    const { chromium } = await import('@playwright/test')
+    const browser = await chromium.launch({ headless: true })
+    try {
+      const page = await browser.newPage({ viewport: { width: 1440, height: 960 } })
+      const destination = resolve(root, 'docs/evidencia')
+      mkdirSync(destination, { recursive: true })
+      await page.goto(urls.demo + '/patients')
+      await page.getByLabel('Folio de paciente', { exact: true }).fill(fixture.patient_folio)
+      await page.getByRole('button', { name: 'Buscar', exact: true }).click()
+      await page.getByRole('link', { name: 'Consultar paciente ' + fixture.patient_folio }).waitFor()
+      await page.screenshot({ path: resolve(destination, 'v2-04-busqueda.png'), fullPage: true })
+      await page.getByRole('link', { name: 'Consultar paciente ' + fixture.patient_folio }).click()
+      await page.getByRole('link', { name: 'Consultar episodio ' + fixture.admission_folio }).waitFor()
+      await page.screenshot({ path: resolve(destination, 'v2-04-ficha.png'), fullPage: true })
+      await page.setViewportSize({ width: 390, height: 844 })
+      await page.screenshot({ path: resolve(destination, 'v2-04-ficha-movil.png'), fullPage: true })
+      await page.getByRole('link', { name: 'Consultar episodio ' + fixture.admission_folio }).click()
+      await page.getByText('Motivo ficticio 204', { exact: true }).waitFor()
+      await page.screenshot({ path: resolve(destination, 'v2-04-episodio-movil.png'), fullPage: true })
+    } finally { await browser.close() }
+  }
   await stop()
   const evidence = resolve(frontend, '.cache/e2e-result.json')
   const report = JSON.parse(readFileSync(evidence, 'utf8'))

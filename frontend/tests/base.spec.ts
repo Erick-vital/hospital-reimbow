@@ -81,7 +81,7 @@ test('B04 · URL directa y recarga resuelven paciente y episodio', async ({ page
 
 test('B05 · actor inactivo limpia datos y permiso no se obtiene alterando selector', async ({ page }) => {
   await page.goto(urls.demo + '/patients/' + fixture.patient_id)
-  await expect(page.getByText(patientName, { exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Paciente del contexto actual' })).toContainText(patientName)
   await actor(page).selectOption('inactivo-demo')
   await expect(page.getByRole('heading', { name: 'Acceso no disponible' })).toBeVisible()
   await expect(page.getByText(patientName, { exact: true })).toHaveCount(0)
@@ -112,7 +112,7 @@ test('B06 · consulta-demo, cabecera de rol falsa y permisos de rutas', async ({
   await spaNavigate(page, '/patients/' + fixture.patient_id)
   const basic = await basicResponse
   expect(await basic.json()).not.toHaveProperty('administrative_profile')
-  await expect(page.getByText(patientName, { exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Paciente del contexto actual' })).toContainText(patientName)
   await spaNavigate(page, '/audit')
   await expect(page.getByRole('heading', { name: 'Acceso no disponible' })).toBeVisible()
   await noPersistentData(page)
@@ -138,7 +138,7 @@ for (const change of ['actor', 'patient']) {
       await expect(page.getByRole('heading', { name: 'Acceso no disponible' })).toBeVisible()
     } else {
       await spaNavigate(page, '/patients/' + fixture.second_patient_id)
-      await expect(page.getByText(secondName, { exact: true })).toBeVisible()
+      await expect(page.getByRole('region', { name: 'Paciente del contexto actual' })).toContainText(secondName)
     }
     release()
     await page.unrouteAll({ behavior: 'wait' })
@@ -164,7 +164,7 @@ test('B08 · error real tardío no reemplaza el contexto nuevo', async ({ page }
   await page.goto(urls.demo + '/patients/' + missing)
   await received
   await spaNavigate(page, '/patients/' + fixture.patient_id)
-  await expect(page.getByText(patientName, { exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Paciente del contexto actual' })).toContainText(patientName)
   release()
   await page.unrouteAll({ behavior: 'wait' })
   await expect(page.getByRole('heading', { name: 'Registro no encontrado' })).toHaveCount(0)
@@ -172,7 +172,7 @@ test('B08 · error real tardío no reemplaza el contexto nuevo', async ({ page }
 
 test('B09 · 404 limpia paciente previo, errores llevan correlación', async ({ page }) => {
   await page.goto(urls.demo + '/patients/' + fixture.patient_id)
-  await expect(page.getByText(patientName, { exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Paciente del contexto actual' })).toContainText(patientName)
   await spaNavigate(page, '/patients/ffffffff-ffff-4fff-afff-ffffffffffff')
   await expect(page.getByRole('heading', { name: 'Registro no encontrado' })).toBeVisible()
   await expect(page.getByText('Referencia de la solicitud:', { exact: false })).toBeVisible()
@@ -184,13 +184,13 @@ test('B09 · 404 limpia paciente previo, errores llevan correlación', async ({ 
 
 test('B10 · navegación atrás y ciclo pageshow revalidan identidad', async ({ page }) => {
   await page.goto(urls.demo + '/patients/' + fixture.patient_id)
-  await expect(page.getByText(patientName, { exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Paciente del contexto actual' })).toContainText(patientName)
   await spaNavigate(page, '/patients/' + fixture.second_patient_id)
-  await expect(page.getByText(secondName, { exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Paciente del contexto actual' })).toContainText(secondName)
   const identity = page.waitForResponse('**/api/v1/identity/me')
   await page.goBack()
   expect((await identity).status()).toBe(200)
-  await expect(page.getByText(patientName, { exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Paciente del contexto actual' })).toContainText(patientName)
   await expect(page.getByText(secondName, { exact: true })).toHaveCount(0)
   const refreshed = page.waitForResponse('**/api/v1/identity/me')
   await page.evaluate(() => {
@@ -198,7 +198,7 @@ test('B10 · navegación atrás y ciclo pageshow revalidan identidad', async ({ 
     dispatchEvent(new PageTransitionEvent('pageshow', { persisted: true }))
   })
   expect((await refreshed).status()).toBe(200)
-  await expect(page.getByText(patientName, { exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Paciente del contexto actual' })).toContainText(patientName)
 })
 
 test('B11 · fallo de transporte recuperable, etiquetas, teclado y foco', async ({ page }) => {
@@ -210,7 +210,8 @@ test('B11 · fallo de transporte recuperable, etiquetas, teclado y foco', async 
   await page.getByRole('button', { name: 'Revalidar acceso' }).click()
   await expect(page.getByRole('heading', { name: 'Pacientes', exact: true })).toBeFocused()
   await page.keyboard.press('Tab')
-  await expect(page.getByRole('button', { name: 'Revalidar acceso' })).toBeFocused()
+  await expect(page.getByLabel('Tipo de búsqueda')).toBeFocused()
+  await page.getByRole('button', { name: 'Revalidar acceso' }).focus()
   await page.keyboard.press('Enter')
   await expect(page.getByRole('heading', { name: 'Pacientes', exact: true })).toBeFocused()
   expect(await actor(page).getAttribute('id')).toBe('demo-actor')
@@ -235,7 +236,7 @@ test('B12 · 401 real en consulta limpia contexto y revalida identidad', async (
   await expect(page.getByText(patientName, { exact: true })).toHaveCount(0)
   await page.unrouteAll()
   await page.getByRole('button', { name: 'Revalidar acceso' }).click()
-  await expect(page.getByText(patientName, { exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Paciente del contexto actual' })).toContainText(patientName)
 })
 
 
@@ -257,5 +258,5 @@ test('B13 · 403 real en consulta limpia contexto y revalida permisos', async ({
   await expect(page.getByText('El actor actual no tiene permiso para esta acción.')).toBeVisible()
   await page.unrouteAll()
   await page.getByRole('button', { name: 'Revalidar acceso' }).click()
-  await expect(page.getByText(patientName, { exact: true })).toBeVisible()
+  await expect(page.getByRole('region', { name: 'Paciente del contexto actual' })).toContainText(patientName)
 })

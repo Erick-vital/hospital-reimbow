@@ -48,12 +48,17 @@ Actores: admision-demo, supervisor-demo, consulta-demo e inactivo-demo.
 La consulta `/api/v1/identity/me` determina permisos actuales. Cambiar actor limpia
 el contexto y cancela peticiones; seleccionar un actor no concede permisos propios.
 Supervisor muestra entrada a Auditoría; consulta-demo no permite altas ni auditoría;
-inactivo-demo produce 401. Las pantallas aún sin flujo muestran disponibilidad pendiente.
+inactivo-demo produce 401. Registro, apertura de episodios y auditoría visual siguen pendientes de V2-05.
 
-URLs `/patients/{UUID}` y `/admissions/{UUID}` resuelven identificación/episodio
-básicos desde la API; conservan PAC/EPI separados. También se resuelven recarga y
-navegación atrás. No se inventa una ficha completa ni un expediente clínico.
-Referencias ficticias reproducibles en [resultados](evidencia/v2-03-resultados.json).
+`/patients` permite filtros por folio/nombre/CURP/TEST (AND), desconocidos V2 y
+paginación; no consulta un listado global. Los filtros viven sólo en memoria.
+URLs `/patients/{UUID}` y `/admissions/{UUID}` resuelven ficha administrativa,
+episodios paginados e ingreso autorizado; conservan PAC/EPI separados, recarga y
+navegación atrás. La cabecera del paciente permanece visible al desplazarse.
+Calidad documentada y declaración anterior sin evidencia se distinguen; el expediente
+clínico no está implementado. Sede/servicio conocidos muestran UUID: sus catálogos
+requieren admissions.create y no se solicitan para ampliar permisos de lectura.
+Referencias ficticias y guion M2-02 en [evidencia V2-04](evidencia-v2-04.md).
 
 Sin `VITE_DEMO_IDENTITY=true` el frontend no ofrece selector ni envía actor.
 Sin `DEV_IDENTITY_ENABLED=true` el backend rechaza la consulta aunque el selector
@@ -87,16 +92,17 @@ VITE_DEMO_IDENTITY=true npm --prefix frontend run build
 npm --prefix frontend run test:e2e
 ```
 
-Validación completa/repetible de V2-03:
+Validación completa/repetible de V2-04:
 
 ```sh
-backend/.venv/bin/python backend/scripts/verify_v2_03.py
+backend/.venv/bin/python backend/scripts/verify_v2_04.py
 ```
 
-El verificador ejecuta npm ci, typecheck, builds con flag false/true, comprueba
+El verificador conserva el lock instalado y ejecuta typecheck/builds false/true; comprueba
 artefactos sin demo/secretos, navegador y regresión backend, conserva hashes de
 filas previas/configuración y guarda resultados. Requiere Chromium ya descargado.
-Puede necesitar permiso efectivo para red, Docker/PostgreSQL y navegador local.
+Puede necesitar permiso efectivo para procesos locales, PostgreSQL y navegador.
+La evidencia original V2-03 y su verificador se conservan; npm ci fue comprobado allí.
 
 `test:e2e` valida `hospital_test` y usuario separado antes de crear fixtures ficticias.
 Inicia dos APIs propias (demo activo/apagado) y cuatro frontends propios
@@ -110,8 +116,9 @@ Todas las consultas positivas usan la API real. Demoras se aplican a respuestas
 reales; las pruebas negativas inyectan fallos de transporte o actores realmente
 sin acceso, sin fabricar JSON de pacientes. No hay traces, HAR, vídeos ni respuestas
 persistidas. El informe conserva IDs ficticios, casos y conteos en `.cache/` ignorado.
-`V2_CAPTURE_PREVIEW=true` añade capturas de la portada sin datos de pacientes;
-el verificador completo las usa como evidencia técnica, sin aprobación humana.
+`V2_CAPTURE_PREVIEW=true` conserva la opción de portada de V2-03.
+`V2_CAPTURE_READ=true` captura búsqueda/ficha/episodio con datos ficticios;
+el verificador V2-04 la usa como evidencia técnica, sin aprobación humana.
 
 ## Contexto y límites
 

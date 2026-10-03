@@ -1,0 +1,198 @@
+{
+  "phase": "V2-04",
+  "date_utc": "2026-10-03T20:28:33.026578+00:00",
+  "lock_sha256": "686adce28b28dec765450cde828a02fbd98cc050d9162f8ebabd838de03b2663",
+  "typecheck": true,
+  "build_demo_false": true,
+  "build_demo_true": true,
+  "demo_selector_actor_headers_absent_from_build": true,
+  "credentials_absent_from_build": true,
+  "browser": {
+    "date_utc": "2026-10-03T20:28:50.226Z",
+    "total": 26,
+    "status": "passed",
+    "cases": [
+      {
+        "case": "B01 · navegador y proxy consultan identidad real PostgreSQL",
+        "status": "passed",
+        "duration_ms": 487
+      },
+      {
+        "case": "B02 · frontend-off rechaza acceso y protege el contexto",
+        "status": "passed",
+        "duration_ms": 269
+      },
+      {
+        "case": "B02 · backend-off rechaza acceso y protege el contexto",
+        "status": "passed",
+        "duration_ms": 275
+      },
+      {
+        "case": "B02 · build rechaza acceso y protege el contexto",
+        "status": "passed",
+        "duration_ms": 159
+      },
+      {
+        "case": "B03 · build incluso con bandera true excluye selector y actores",
+        "status": "passed",
+        "duration_ms": 5
+      },
+      {
+        "case": "B04 · URL directa y recarga resuelven paciente y episodio",
+        "status": "passed",
+        "duration_ms": 726
+      },
+      {
+        "case": "B05 · actor inactivo limpia datos y permiso no se obtiene alterando selector",
+        "status": "passed",
+        "duration_ms": 370
+      },
+      {
+        "case": "B06 · consulta-demo, cabecera de rol falsa y permisos de rutas",
+        "status": "passed",
+        "duration_ms": 466
+      },
+      {
+        "case": "B07 · respuesta real demorada se descarta al cambiar actor",
+        "status": "passed",
+        "duration_ms": 641
+      },
+      {
+        "case": "B07 · respuesta real demorada se descarta al cambiar patient",
+        "status": "passed",
+        "duration_ms": 336
+      },
+      {
+        "case": "B08 · error real tardío no reemplaza el contexto nuevo",
+        "status": "passed",
+        "duration_ms": 314
+      },
+      {
+        "case": "B09 · 404 limpia paciente previo, errores llevan correlación",
+        "status": "passed",
+        "duration_ms": 354
+      },
+      {
+        "case": "B10 · navegación atrás y ciclo pageshow revalidan identidad",
+        "status": "passed",
+        "duration_ms": 428
+      },
+      {
+        "case": "B11 · fallo de transporte recuperable, etiquetas, teclado y foco",
+        "status": "passed",
+        "duration_ms": 370
+      },
+      {
+        "case": "B12 · 401 real en consulta limpia contexto y revalida identidad",
+        "status": "passed",
+        "duration_ms": 479
+      },
+      {
+        "case": "B13 · 403 real en consulta limpia contexto y revalida permisos",
+        "status": "passed",
+        "duration_ms": 498
+      },
+      {
+        "case": "R01 · filtros, selección, paginación y resultados coinciden con API",
+        "status": "passed",
+        "duration_ms": 984
+      },
+      {
+        "case": "R02 · identificador exacto, búsqueda repetida, vacío y 422 recuperable",
+        "status": "passed",
+        "duration_ms": 576
+      },
+      {
+        "case": "R03 · búsqueda real atrasada no sustituye la vigente",
+        "status": "passed",
+        "duration_ms": 420
+      },
+      {
+        "case": "R04 · ficha ampliada, colecciones y calidad sin exponer evidencia",
+        "status": "passed",
+        "duration_ms": 466
+      },
+      {
+        "case": "R05 · desconocido sin identidad ni nacimiento inventados",
+        "status": "passed",
+        "duration_ms": 508
+      },
+      {
+        "case": "R06 · episodios paginados, ingreso y ambos folios separados",
+        "status": "passed",
+        "duration_ms": 935
+      },
+      {
+        "case": "R07 · consulta-demo restringe demografía e intake en ficha, búsqueda y episodio",
+        "status": "passed",
+        "duration_ms": 988
+      },
+      {
+        "case": "R08 · fallo de lista conserva identificación y búsqueda recupera transporte",
+        "status": "passed",
+        "duration_ms": 820
+      },
+      {
+        "case": "R09 · filtros AND, acentos y comodines literales",
+        "status": "passed",
+        "duration_ms": 533
+      },
+      {
+        "case": "R10 · 404 de episodio y lista tardía no contaminan otra ficha",
+        "status": "passed",
+        "duration_ms": 522
+      }
+    ],
+    "backend_database": "hospital_test",
+    "fixture_references": {
+      "patient_id": "2bbcae97-0936-436f-bd67-5e723087f8ee",
+      "second_patient_id": "3b055610-22b4-49f1-bc53-0fef11796097",
+      "patient_folio": "PAC-000000002264",
+      "admission_id": "4c729e19-58af-4660-a68d-ae282e944e88",
+      "admission_folio": "EPI-000000000471",
+      "denied_actor": "v203-sin-permisos-868fd7bcc1414bafafa71583b7dffbe4",
+      "test_identifier": "V204-838CB760D6AF47B5929108549540BB69",
+      "unknown_id": "19f405ae-01b9-4985-84da-13e03fb83f57",
+      "unknown_folio": "PAC-000000002272",
+      "legacy_id": "f0be7146-da58-49e1-91f8-98887b660393"
+    },
+    "services_stopped": true,
+    "frontend_modes": [
+      "demo",
+      "frontend-off",
+      "backend-off",
+      "build"
+    ]
+  },
+  "backend_pytest": {
+    "tests": 316,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lock_preserved": true,
+  "previous_rows_preserved": true,
+  "configuration_preserved": true,
+  "default_backend_identity_enabled": false,
+  "versions": {
+    "node_modules/@playwright/test": "1.63.0",
+    "node_modules/react": "19.3.0",
+    "node_modules/react-dom": "19.3.0",
+    "node_modules/react-router": "7.18.4",
+    "node_modules/typescript": "7.0.2",
+    "node_modules/vite": "8.3.2"
+  },
+  "acceptance": [
+    "V2-04",
+    "F02",
+    "F03",
+    "F04 (lecturas)",
+    "F05 (URL/recarga/atrás/ciclo pageshow)",
+    "A07 (lecturas UI)"
+  ],
+  "limits": [
+    "Sin formularios de escritura V2-05; sede/servicio muestran UUID porque catálogo exige admissions.create",
+    "pageshow persisted comprobado con evento de ciclo; sin afirmar restauración bfcache real",
+    "Capturas/revisión técnica no sustituyen M2-01/02/03 ni aceptación clínica"
+  ]
+}

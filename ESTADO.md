@@ -20,17 +20,20 @@ Propuesta: [diseño técnico](docs/propuesta-tecninca.md).
 - Clave opcional V1/obligatoria V2; replay 200/24 h, reservas vencidas conservadas.
 - Concurrencia, rollback, permisos, expiración, pérdida de respuesta y reinicios probados.
 - [Evidencia 02A](docs/evidencia-v2-02a.md) y [02B](docs/evidencia-v2-02b.md).
-- V2-03 completa: React/TypeScript/Vite/router, lock y proxy dev/preview en loopback.
-- Cliente HTTP, identidad/permisos, contextos cancelables y rutas protegidas básicas.
-- Build false/true excluye selector/actores/cabecera demo; sin credenciales de base.
-- 16 pruebas navegador/API/PostgreSQL y 316 backend pasan, sin fallos ni omisiones.
-- Typecheck/npm ci/build comprobados; capturas escritorio/móvil inspeccionadas técnicamente.
-- [Guía V2](docs/desarrollo-v2.md), [evidencia 03](docs/evidencia-v2-03.md), [resultados](docs/evidencia/v2-03-resultados.json).
-- Node 20.19.5/npm 10.8.2; paquetes y Chromium instalados sólo localmente.
-- PostgreSQL 18.6/migraciones 0001–0006; configuración/filas/secuencias previas conservadas.
+- V2-03 completa y guardada en Git: frontend base/contextos/permisos y builds sin demo.
+- [Guía V2](docs/desarrollo-v2.md) y [evidencia 03](docs/evidencia-v2-03.md).
+- V2-04 completa técnicamente: filtros/paginación/selección, ficha ampliada y episodios.
+- Calidad documentada/V1 sin evidencia, ausencias y desconocido sin datos inventados.
+- Demografía/intake por permiso; PAC/EPI separados y cabecera visible al desplazarse.
+- Consultas atrasadas descartadas; recarga/URL/401/403/404 y storage vacío probados.
+- 26 pruebas navegador/API/PostgreSQL y 316 backend pasan, sin fallos ni omisiones.
+- Typecheck/build false/true sin demo/credenciales; lock/configuración/filas previas conservados.
+- [Evidencia/guion M2-02](docs/evidencia-v2-04.md), [resultados](docs/evidencia/v2-04-resultados.json).
+- Capturas escritorio/móvil inspeccionadas técnicamente; sin revisión humana.
+- Node 20.19.5/npm 10.8.2; dependencias/Chromium locales de V2-03 conservados.
+- PostgreSQL 18.6/migraciones 0001–0006; fixtures ficticias nuevas sólo en hospital_test.
 - APIs/Vite/preview/navegador temporales cerrados; PostgreSQL/volumen conservados.
-- Identidad backend apagada por defecto; fixtures nuevas sólo en hospital_test.
-- Entrega V2-03 comprobada y guardada en Git; test de auditoría ordenado explícitamente.
+- Identidad backend apagada por defecto; sin cambios del sistema ni instalaciones nuevas.
 
 ## Decisiones vigentes
 
@@ -42,6 +45,7 @@ Propuesta: [diseño técnico](docs/propuesta-tecninca.md).
 - Verificación: nombre más nacimiento/CURP, fuente y actor/fecha servidor; V1 se distingue.
 - Ingreso: fecha clínica/sede/servicio/procedencia/motivo; urgencias permite pendientes.
 - Ausencia distingue desconocido/no proporcionado/no aplica; known no implica verificado.
+- Filtro desconocido sólo V2 explícito; sede/servicio conocidos muestran UUID, sin ampliar permisos.
 - Datos/intenciones sólo en memoria; actor/ruta invalida generación y cancela solicitudes.
 - 401/403 limpian/revalidan; recarga pierde actor seleccionado y resuelve acceso de nuevo.
 - Búsqueda vence a 15 minutos y no se consume; SEARCH_REQUIRED conserva 422.
@@ -50,10 +54,10 @@ Propuesta: [diseño técnico](docs/propuesta-tecninca.md).
 
 ## Próximo paso y límites
 
-- Siguiente fase: V2-04, búsqueda/ficha ampliada/episodios; sin bloqueo actual.
+- Siguiente fase: V2-05, registro ampliado/apertura idempotente; sin bloqueo técnico.
 - Desarrollo autorizado; no pedir otra confirmación de la misma ampliación.
-- V2-04–06 pendientes: buscador/ficha/listas completos, formularios/borradores y A10.
-- M2-01 visual humana no ejecutada; M2-02/03 pendientes, capturas no equivalen a aprobación.
+- V2-05/06 pendientes: formularios/borradores, auditoría visual, recuperación y A10.
+- M2-01 visual no ejecutada; M2-02 preparada sin respuesta humana, M2-03 pendiente.
 - pageshow comprobado con evento de ciclo; sin afirmar restauración bfcache real.
 - Sin autenticación real, AWS, aceptación clínica, cumplimiento normativo ni aptitud productiva.
 

@@ -41,20 +41,44 @@ def fixtures(settings):
         with db.sessions.begin() as session:
             session.add(User(actor_key=denied_key,provider='development',subject=denied_key))
         patients=[]
-        for label in ('Alfa','Beta'):
+        test_identifier='V204-'+uuid4().hex.upper()
+        for label in ('Alfa','Beta','Gamma','Delta','Epsilon','Zeta','Eta','Álvarez_%'):
             with db.sessions() as session:
                 name='Persona ficticia navegador '+label
-                search=search_patients(session,actor=actor,request_id=uuid4(),filters=SearchFilters(name=name))
+                search=search_patients(session,actor=actor,request_id=uuid4(),filters=SearchFilters(name=name, **({'identifier_system':'TEST','identifier_value':test_identifier} if label=='Alfa' else {})))
                 patient=create_patient_v2(session,actor=actor,request_id=uuid4(),data=PatientCreateV2(
-                    identity_status='provisional',given_names=name,search_id=search['search_id'],
-                    birth_date='1990-01-01',administrative_profile={'nationality':{'state':'known','value':'Ficticia'}}))
+                    identity_status='verified' if label=='Alfa' else 'provisional',given_names=name,search_id=search['search_id'],
+                    identifiers=[{'system':'TEST','value':test_identifier}] if label=='Alfa' else [],
+                    verification=[{'field':field,'source_kind':'official_document','source_reference':'Evidencia ficticia no visible V204'} for field in ('full_name','birth_date')] if label=='Alfa' else [],
+                    birth_date='1990-01-01',administrative_profile={'nationality':{'state':'known','value':'Ficticia'},
+                        'registered_sex':{'state':'unknown'},
+                        'phones':{'state':'known','value':[{'kind':'personal','number':'5550002040'},{'kind':'work','number':'5550002041'}]},
+                        'addresses':{'state':'known','value':[{'kind':'principal','street':'Calle ficticia 204'},{'kind':'temporary','municipality':'Municipio ficticio 204'}]},
+                        'emergency_contacts':{'state':'known','value':[{'name':'Contacto ficticio 204','phone':{'state':'not_provided'},'relationship':{'state':'not_applicable'}}]}}))
                 patients.append(patient)
         with db.sessions() as session:
-            episode=create_admission_v2(session,actor=actor,request_id=uuid4(),data=AdmissionCreateV2(patient_id=patients[0]['id'],type='emergency'))
+            episode=create_admission_v2(session,actor=actor,request_id=uuid4(),data=AdmissionCreateV2(patient_id=patients[0]['id'],type='emergency',intake={
+                'admitted_at':{'state':'known','value':'2026-01-01T12:00:00+00:00'},
+                'origin':{'state':'unknown'},'reason_for_visit':{'state':'known','value':'Motivo ficticio 204'}}))
+        for _ in range(6):
+            with db.sessions() as session:
+                create_admission_v2(session,actor=actor,request_id=uuid4(),data=AdmissionCreateV2(patient_id=patients[0]['id'],type='emergency'))
+        with db.sessions() as session:
+            search=search_patients(session,actor=actor,request_id=uuid4(),filters=SearchFilters(unidentified=True))
+            unknown=create_patient_v2(session,actor=actor,request_id=uuid4(),data=PatientCreateV2(identity_status='provisional',is_unidentified=True,search_id=search['search_id'],
+                unidentified_description={'estimated_age':{'state':'known','value':{'min_years':30,'max_years':40}},
+                    'apparent_sex':{'state':'unknown'},'identifying_features':{'state':'known','value':'Descripción ficticia 204'}}))
+        from hospital.patients.schemas import PatientCreate
+        from hospital.patients.service import create_patient
+        with db.sessions() as session:
+            legacy_name='Persona ficticia anterior 204'
+            search=search_patients(session,actor=actor,request_id=uuid4(),filters=SearchFilters(name=legacy_name))
+            legacy=create_patient(session,actor=actor,request_id=uuid4(),data=PatientCreate(identity_status='verified',given_names=legacy_name,search_id=search['search_id']))
         # Sólo referencias ficticias para pruebas; sin cuerpos ni configuración.
         print(json.dumps({'patient_id':str(patients[0]['id']),'second_patient_id':str(patients[1]['id']),
                           'patient_folio':patients[0]['folio'],'admission_id':str(episode['id']),
-                          'admission_folio':episode['folio'],'denied_actor':denied_key}))
+                          'admission_folio':episode['folio'],'denied_actor':denied_key, 'test_identifier':test_identifier,
+                          'unknown_id':str(unknown['id']),'unknown_folio':unknown['folio'],'legacy_id':str(legacy['id'])}))
     finally:
         db.dispose()
 
