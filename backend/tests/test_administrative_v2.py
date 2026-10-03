@@ -322,7 +322,7 @@ def test_a08_v1_declarations_absences_and_responses_unchanged(client, sessions):
     with sessions() as session:
         assert session.get(PatientProfile, UUID(old['id'])) is None and session.get(AdmissionIntake, UUID(episode['id'])) is None
     paths = client.get('/openapi.json').json()['paths']
-    assert set(paths['/api/v2/patients']) == {'get'} and '/api/v2/admissions' not in paths
+    assert set(paths['/api/v2/patients']) == {'get', 'post'} and 'post' in paths['/api/v2/admissions']
 
 
 @pytest.mark.integration

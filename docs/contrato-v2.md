@@ -1,7 +1,7 @@
 # Contrato V2 — revisión 2, ampliación administrativa
 
 Fecha: 2026-10-03. Lecturas y servicios administrativos comprobados en V2-02A;
-POST V2 e idempotencia pendientes de V2-02B. Frontend pendiente.
+POST V2 e idempotencia comprobados en V2-02B. Frontend pendiente.
 Ampliación aprobada por el usuario con «ok hazlo entonces»; revisión visual no realizada.
 Base: [contrato V1, revisión 4](contrato-v1.md).
 Alcance y exclusiones: [plan V2](../plans/v2-interfaz-admision.md).
@@ -98,7 +98,7 @@ resultado por POST después del plazo; las lecturas ordinarias siguen disponible
 Sin trabajo de limpieza en esta versión. Revisión futura de retención requiere
 nuevo contrato y migración, sin borrar pacientes ni auditoría.
 
-Algoritmo previsto: autorizar operación (incluida verificación) antes de consultar
+Algoritmo implementado: autorizar operación (incluida verificación) antes de consultar
 clave; abrir transacción, `SET LOCAL lock_timeout='5s'`, intentar reserva UNIQUE con
 `INSERT ... ON CONFLICT DO NOTHING`; si otro commit ganó, comprobar su registro;
 si es nueva, validar búsqueda/paciente, crear recurso, enlazar registro, marcar
@@ -107,7 +107,9 @@ confirmar todo junto. No hay reserva exitosa visible sin recurso. El conflicto d
 lock de esa reserva revierte y se traduce a IN_PROGRESS; otros errores conservan
 su tratamiento V1. No usar un mutex en memoria ni un SELECT previo como garantía.
 `lock_timeout` se limita a la espera por la reserva, restaurando el valor anterior
-antes de ejecutar las reglas de negocio. Pruebas deben demostrar ese alcance.
+antes de ejecutar las reglas de negocio. También se desactiva temporalmente el
+statement_timeout general de 2 s durante la reserva y se restaura su valor previo;
+las pruebas comprueban el alcance de ambos ajustes.
 
 Replay confirmado no exige acuse aún vigente ni repite detección de identificadores;
 sí valida estructura de entrada y permisos actuales. No exige permiso de lectura
@@ -173,4 +175,5 @@ Bloqueos PostgreSQL: [lock_timeout](https://www.postgresql.org/docs/current/runt
 Caché del cliente: [Request.cache](https://developer.mozilla.org/en-US/docs/Web/API/Request/cache).
 Los bocetos no demuestran autorización, idempotencia ni integración implementadas.
 Backend ampliado/lecturas acreditados en [evidencia V2-02A](evidencia-v2-02a.md).
-Idempotencia, POST V2 y recorrido de navegador aún no se acreditan.
+Idempotencia y POST V2 acreditados en [evidencia V2-02B](evidencia-v2-02b.md).
+Recorrido de navegador pendiente. SEARCH_REQUIRED conserva el código HTTP 422 de V1.

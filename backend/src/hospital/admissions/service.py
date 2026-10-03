@@ -4,6 +4,7 @@ from sqlalchemy import func, select, true
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session, aliased
 
+from hospital.idempotency.service import execute_create
 from hospital.admissions.models import Admission
 from hospital.admissions.schemas import AdmissionCreate
 from hospital.audit.service import record_success
@@ -23,18 +24,19 @@ def require_patient(session: Session, patient_id: UUID) -> None:
         raise ApplicationError(404, 'RESOURCE_NOT_FOUND', 'Recurso no encontrado')
 
 
-def create_admission(session: Session, *, actor: Actor, request_id: UUID, data: AdmissionCreate) -> dict:
+def create_admission(session: Session, *, actor: Actor, request_id: UUID, data: AdmissionCreate,
+                     idempotency_key=None, idempotency_metadata=None) -> dict:
     authorize(actor, 'admissions.create')
+    def create():
+        admission = insert_admission(session, actor, data)
+        record_success(session, actor=actor, action='admissions.create', request_id=request_id,
+                       resource_id=admission.id, new_values=snapshot(admission))
+        return admission
     try:
-        with session.begin():
-            admission = insert_admission(session, actor, data)
-            values = snapshot(admission)
-            result = admission_projection(actor, values, operation='admissions.create')
-            record_success(session, actor=actor, action='admissions.create', request_id=request_id,
-                           resource_id=admission.id, new_values=values)
-        return result
+        return execute_create(session, actor=actor, request_id=request_id, data=data,
+            operation='v1.admissions.create', key=idempotency_key, metadata=idempotency_metadata,
+            create=create, project=lambda a: admission_projection(actor, snapshot(a), operation='admissions.create'), model=Admission)
     except IntegrityError as exc:
-        # También controlar una referencia que desaparezca entre SELECT e INSERT.
         if getattr(getattr(exc.orig, 'diag', None), 'constraint_name', None) == 'fk_admissions_patient_id_patients':
             raise ApplicationError(404, 'RESOURCE_NOT_FOUND', 'Recurso no encontrado') from None
         raise

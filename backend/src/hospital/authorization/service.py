@@ -20,6 +20,8 @@ OPERATION_PERMISSIONS = {
     "admissions.create": ("admissions.create",),
     "admissions.read": ("admissions.read",),
     "admissions.list": ("admissions.read", "patients.read"),
+    "patients.replay": ("patients.create", "patients.search"),
+    "admissions.replay": ("admissions.create",),
     "catalogs.read": ("admissions.create",),
     "audit.read": ("audit.read",),
 }

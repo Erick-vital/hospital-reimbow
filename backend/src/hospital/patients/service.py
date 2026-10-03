@@ -8,6 +8,7 @@ from hospital.audit.service import record_success
 from hospital.authorization.projections import PATIENT_BASIC, PATIENT_DEMOGRAPHICS, patient_projection
 from hospital.authorization.service import Actor, authorize
 from hospital.core.errors import ApplicationError
+from hospital.idempotency.service import execute_create
 from hospital.patients.models import Patient, PatientIdentifier, PatientSearch
 from hospital.patients.schemas import PatientCreate, SearchFilters, full_name
 
@@ -75,18 +76,20 @@ def check_search(session: Session, actor: Actor, data: PatientCreate):
         raise ApplicationError(422, 'SEARCH_REQUIRED', 'Búsqueda previa requerida')
 
 
-def create_patient(session: Session, *, actor: Actor, request_id: UUID, data: PatientCreate) -> dict:
+def create_patient(session: Session, *, actor: Actor, request_id: UUID, data: PatientCreate,
+                   idempotency_key=None, idempotency_metadata=None) -> dict:
     operation = 'patients.create_verified' if data.identity_status == 'verified' else 'patients.create'
     authorize(actor, operation)
+    def create():
+        patient = insert_patient(session, actor, data)
+        record_success(session, actor=actor, action='patients.create', resource_id=patient.id,
+                       request_id=request_id, new_values=snapshot(patient))
+        return patient
     try:
-        with session.begin():
-            patient = insert_patient(session, actor, data)
-            values = snapshot(patient)
-            record_success(session, actor=actor, action='patients.create', resource_id=patient.id, request_id=request_id, new_values=values)
-            result = patient_projection(actor, values, operation=operation)
-        return result
+        return execute_create(session, actor=actor, request_id=request_id, data=data,
+            operation='v1.patients.create', key=idempotency_key, metadata=idempotency_metadata,
+            create=create, project=lambda p: patient_projection(actor, snapshot(p), operation=operation), model=Patient)
     except IntegrityError as exc:
-        # Sólo la reserva global conocida se convierte en conflicto de negocio.
         if getattr(getattr(exc.orig, 'diag', None), 'constraint_name', None) == 'uq_patient_identifiers_system_value':
             raise ApplicationError(409, 'IDENTIFIER_CONFLICT', 'Identificador ya registrado') from None
         raise

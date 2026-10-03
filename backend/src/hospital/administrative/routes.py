@@ -1,15 +1,16 @@
-"""Sólo lecturas V2 en 02A; los POST requieren la idempotencia de 02B."""
+"""Lecturas administrativas y altas V2 con clave obligatoria."""
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, Query, Request
+from fastapi import APIRouter, Depends, Header, Query, Request, Response
 from sqlalchemy.orm import Session
 
 from hospital.administrative.projections import admission_v2_projection, patient_v2_projection
-from hospital.administrative.schemas import AdmissionIntakeResponse, AdmissionPageV2, PatientBasicV2, PatientDemographicsV2, PatientPageV2, ServicePage, SitePage
-from hospital.administrative.service import list_catalog
+from hospital.administrative.schemas import AdmissionCreateV2, PatientCreateV2, AdmissionIntakeResponse, AdmissionPageV2, PatientBasicV2, PatientDemographicsV2, PatientPageV2, ServicePage, SitePage
+from hospital.administrative.service import create_patient_v2, create_admission_v2, list_catalog
 from hospital.admissions.schemas import AdmissionResponse
 from hospital.admissions.service import list_admissions, read_admission
+from hospital.idempotency.service import request_key, apply_headers
 from hospital.authorization.service import Actor
 from hospital.core.database import get_session
 from hospital.identity.dependencies import permitted
@@ -55,3 +56,25 @@ def sites(request: Request, actor: Annotated[Actor, Depends(permitted('admission
 def services(site_id: UUID, request: Request, actor: Annotated[Actor, Depends(permitted('admissions.create'))],
              session: SessionDependency, limit: Limit = 20, offset: Offset = 0):
     return list_catalog(session, actor=actor, request_id=UUID(request.state.request_id), kind='services', site_id=site_id, limit=limit, offset=offset)
+
+
+@router.post('/patients', status_code=201, response_model=PatientDemographicsV2 | PatientBasicV2, name='patients.create')
+def create_patient(data: PatientCreateV2, request: Request, response: Response,
+                   actor: Annotated[Actor, Depends(permitted('patients.create', 'patients.search'))], session: SessionDependency,
+                   idempotency_header: Annotated[str, Header(alias='Idempotency-Key', description='UUID v4 por intención; obligatorio en V2')]):
+    metadata = {}
+    result = create_patient_v2(session, actor=actor, request_id=UUID(request.state.request_id), data=data,
+                              idempotency_key=request_key(request, required=True), idempotency_metadata=metadata)
+    apply_headers(response, metadata, version='v2', kind='patients', result=result)
+    return result
+
+
+@router.post('/admissions', status_code=201, response_model=AdmissionIntakeResponse | AdmissionResponse, name='admissions.create')
+def create_admission(data: AdmissionCreateV2, request: Request, response: Response,
+                     actor: Annotated[Actor, Depends(permitted('admissions.create'))], session: SessionDependency,
+                   idempotency_header: Annotated[str, Header(alias='Idempotency-Key', description='UUID v4 por intención; obligatorio en V2')]):
+    metadata = {}
+    result = create_admission_v2(session, actor=actor, request_id=UUID(request.state.request_id), data=data,
+                                idempotency_key=request_key(request, required=True), idempotency_metadata=metadata)
+    apply_headers(response, metadata, version='v2', kind='admissions', result=result)
+    return result

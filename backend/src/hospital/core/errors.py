@@ -43,7 +43,10 @@ def install_error_handlers(app: FastAPI) -> None:
                 await run_in_threadpool(record_denial, request.app.state.audit_sessions,
                                         actor_id=actor.id if actor else None, action=action,
                                         request_id=UUID(request.state.request_id), code=exc.code)
-        return error_response(request, exc.status, exc.code, exc.message)
+        response = error_response(request, exc.status, exc.code, exc.message)
+        if exc.code == 'IDEMPOTENCY_IN_PROGRESS':
+            response.headers['Retry-After'] = '1'
+        return response
 
     @app.exception_handler(RequestValidationError)
     async def validation_error(request: Request, exc: RequestValidationError) -> JSONResponse:

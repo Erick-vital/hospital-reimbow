@@ -1,0 +1,75 @@
+{
+  "phase": "V2-02B",
+  "date_utc": "2026-10-03T18:43:28.374913+00:00",
+  "head": "0006",
+  "preparation_runs": 2,
+  "config_preserved": true,
+  "previous_rows_preserved": true,
+  "fresh_database": {
+    "name": "hospital_v2_02b_validation_a626a8f786364d0e8327b3aee3360c5b",
+    "from_zero": true,
+    "repeated": true,
+    "check": true,
+    "retained": true
+  },
+  "pytest": {
+    "tests": 316,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "http": {
+    "lost_response_after_commit": true,
+    "api_restart": true,
+    "postgresql_stop_start": true,
+    "rows_sequences_preserved": true,
+    "same_resources": true,
+    "retention_expired_reserved": true,
+    "http_in_progress_retry_after": true,
+    "reservation_wait_seconds": 5.011,
+    "one_creation_per_intention": true,
+    "no_store": true,
+    "patient_id": "9d7a95bd-34ff-4446-ad43-c35074f7456b",
+    "admission_id": "55caf5e5-14e5-4a3d-954b-a224df5a6ca7"
+  },
+  "acceptance_cases": [
+    "I01",
+    "I02",
+    "I03",
+    "I04",
+    "I05",
+    "I06",
+    "I07",
+    "I08",
+    "I09",
+    "I10",
+    "I11",
+    "I12",
+    "I13",
+    "A09",
+    "R01"
+  ],
+  "default_identity_enabled": false,
+  "temporary_api_stopped": true,
+  "limits": [
+    "Sin frontend/navegador; A10 pendiente de V2-05/06",
+    "Sólo demostración local con datos ficticios"
+  ],
+  "upgrade_from_0005": {
+    "name": "hospital_v2_02b_upgrade_85f71fd6af21469ba20bad65626936e0",
+    "from": "0005",
+    "to": "0006",
+    "v1_v2_data": true,
+    "all_previous_row_hashes_equal": true,
+    "sequences_equal": true,
+    "repeated_upgrade_check": true,
+    "retained": true
+  },
+  "initial_pytest": {
+    "tests": 311,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "final_suite_command": "backend/.venv/bin/python -m pytest -q backend/tests -c backend/pyproject.toml --tb=short --junitxml=/tmp/reimbow-v2-02b-final.xml"
+}

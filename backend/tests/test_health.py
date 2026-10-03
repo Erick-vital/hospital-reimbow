@@ -30,7 +30,7 @@ def test_current_routes_available():
     with TestClient(create_app(settings)) as client:
         paths = client.get("/openapi.json").json()["paths"]
         assert {p for p in paths if p.startswith('/api/v1/')} == {"/api/v1/health/live", "/api/v1/health/ready", "/api/v1/identity/me", "/api/v1/audit", "/api/v1/patients", "/api/v1/patients/{patient_id}", "/api/v1/admissions", "/api/v1/admissions/{admission_id}", "/api/v1/patients/{patient_id}/admissions"}
-        assert {p for p in paths if p.startswith('/api/v2/')} == {'/api/v2/patients', '/api/v2/patients/{patient_id}', '/api/v2/admissions/{admission_id}', '/api/v2/patients/{patient_id}/admissions', '/api/v2/catalogs/sites', '/api/v2/catalogs/services'}
+        assert {p for p in paths if p.startswith('/api/v2/')} == {'/api/v2/admissions', '/api/v2/patients', '/api/v2/patients/{patient_id}', '/api/v2/admissions/{admission_id}', '/api/v2/patients/{patient_id}/admissions', '/api/v2/catalogs/sites', '/api/v2/catalogs/services'}
         response = client.get("/api/v1/patients")
         assert response.status_code == 401
         assert response.json()["error"]["code"] == "IDENTITY_REQUIRED"

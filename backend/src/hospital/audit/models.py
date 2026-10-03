@@ -10,7 +10,7 @@ from hospital.core.database import Base
 
 ACTIONS = (
     "patients.search", "patients.create", "patients.read", "admissions.create",
-    "admissions.read", "admissions.list", "audit.read", "identity.read", "catalogs.read",
+    "admissions.read", "admissions.list", "audit.read", "identity.read", "catalogs.read", "patients.replay", "admissions.replay",
 )
 
 

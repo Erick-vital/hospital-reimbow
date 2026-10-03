@@ -2,8 +2,8 @@
 
 Fecha: 2026-10-02. Actualizado: 2026-10-03. Estado: V2-01 completada técnicamente;
 ampliación administrativa aprobada el 2026-10-03 y concretada en contrato revisión 2.
-V2-02A completada y comprobada el 2026-10-03. Revisión visual no realizada.
-Siguiente fase de ejecución: **V2-02B — Altas idempotentes y publicación de POST V2**.
+V2-02A y V2-02B completadas y comprobadas el 2026-10-03. Revisión visual no realizada.
+Siguiente fase de ejecución: **V2-03 — Base frontend e identidad local**.
 Base: V1-01–07 completadas, commit `df01151` en la rama local `main`.
 
 ## Objetivo y autorización
@@ -194,7 +194,7 @@ se concretó esa decisión en revisión 2. No atribuir aprobación visual ni cl�
 
 Depende de V2-01; precede a formularios de escritura. Se divide en las dos fases
 de ejecución siguientes, conservando los identificadores del resto del plan.
-V2-02A completada; V2-02B pendiente. Cada fase conserva evidencia independiente.
+V2-02A y V2-02B completadas. Cada fase conserva evidencia independiente.
 
 #### V2-02A — Implementación del backend administrativo ampliado
 
@@ -284,23 +284,35 @@ intake no sustituye futuras restricciones clínicas ni se declara autenticación
 
 #### V2-02B — Altas idempotentes y publicación de POST V2
 
-Estado: pendiente. Depende de V2-02A; precede a formularios de escritura V2-05.
+Estado: **completada y comprobada el 2026-10-03**. Depende de V2-02A; precede a formularios de escritura V2-05.
 
-- [ ] Migración y servicio compartido de idempotencia con operación versionada,
+- [x] Migración y servicio compartido de idempotencia con operación versionada,
   integrados con altas V1/V2; publicar POST V2 y Location de su versión.
-- [ ] Clave opcional V1/obligatoria V2, replay 200/24 h y reserva vencida sin
+- [x] Clave opcional V1/obligatoria V2, replay 200/24 h y reserva vencida sin
   reutilización; huella de perfil/ausencias/evidencia/intake completos.
-- [ ] Misma clave/cuerpo, conflicto, actores/versiones distintos, rollback y
+- [x] Misma clave/cuerpo, conflicto, actores/versiones distintos, rollback y
   reintento tras respuesta perdida/búsqueda expirada (V1 no la consume).
-- [ ] Conexiones distintas con barrera: un recurso/evento de creación para el
+- [x] Conexiones distintas con barrera: un recurso/evento de creación para el
   mismo intento; claves diferentes conservan episodios independientes; espera 5 s.
-- [ ] Permisos actuales en replay, sin nueva evidencia de verificación ni fechas;
+- [x] Permisos actuales en replay, sin nueva evidencia de verificación ni fechas;
   caída/reinicio y retención comprobados con API real/PostgreSQL.
 
 Aceptación: I01–I13, A09 y R01 pasan; se completa la comprobación HTTP de altas
 ampliadas y regresión V1. Migración nueva/repetida/check sin divergencias, sin
 deduplicación clínica por parecido. A10 y recorrido de navegador siguen en V2-05/06.
 Entregables: migración, servicio/rutas POST, pruebas y evidencia de idempotencia.
+
+Entregados: migración `0006`, módulo compartido de idempotencia, POST V2 y
+compatibilidad opcional V1, pruebas de concurrencia y verificador TCP/PostgreSQL.
+[Evidencia y comandos](../docs/evidencia-v2-02b.md),
+[resultados](../docs/evidencia/v2-02b-resultados.json) y
+[verificador](../backend/scripts/verify_v2_02b.py).
+316 pruebas pasan sin fallos ni omisiones. Respuesta perdida después de commit
+y reinicios comprobados; espera HTTP 5.011 s.
+Migración desde cero y desde 0005 con datos V1/V2 preservados; upgrade/check repetidos.
+SEARCH_REQUIRED conserva 422 de V1. La espera de reserva restaura lock_timeout y
+statement_timeout antes del negocio. Sin frontend ni revisiones visuales nuevas.
+Commit previo solicitado: `a5a592d`; los cambios de esta fase quedan para revisión.
 
 ### V2-03 — Base frontend e identidad local
 
@@ -399,10 +411,10 @@ ninguna casilla se marca por tener sólo un documento, endpoint o captura.
 
 ## Próximo paso
 
-La siguiente fase es **V2-02B**, con idempotencia/publicación de altas.
-Después V2-03 (base frontend),
+La siguiente fase es **V2-03**, base frontend e identidad local,
 sin pedir confirmación repetida para el alcance ya aprobado.
 M2-01 conserva revisión visual pendiente, sin bloquear la implementación aprobada.
-Backend V2-02A acreditado en [su evidencia](../docs/evidencia-v2-02a.md).
-PostgreSQL permanece activo en loopback; API temporal cerrada, identidad apagada
-por defecto. Frontend, POST V2 e idempotencia pendientes; sin aceptación clínica.
+Backend V2-02A y V2-02B acreditados en [evidencia 02A](../docs/evidencia-v2-02a.md)
+y [evidencia 02B](../docs/evidencia-v2-02b.md).
+PostgreSQL permanece activo en loopback; APIs temporales cerradas, identidad apagada
+por defecto. POST V2/idempotencia comprobados; frontend pendiente, sin aceptación clínica.

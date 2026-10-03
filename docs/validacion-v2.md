@@ -1,8 +1,9 @@
 # Validación V2 — matriz y comandos
 
-Fecha: 2026-10-03. A01–A08 comprobados en V2-02A; 276 pruebas y lecturas HTTP
-reales pasan. [Evidencia/comandos](evidencia-v2-02a.md) y
-[resultados](evidencia/v2-02a-resultados.json). Otros casos siguen pendientes.
+Fecha: 2026-10-03. A01–A08 comprobados en V2-02A; I01–I13/A09/R01 en V2-02B.
+316 pruebas pasan y altas/replay/reinicios HTTP reales comprobados.
+[Evidencia 02A](evidencia-v2-02a.md), [evidencia 02B](evidencia-v2-02b.md) y
+[resultados vigentes](evidencia/v2-02b-resultados.json). Casos frontend pendientes.
 Contrato: [revisión 2](contrato-v2.md) y [campos ampliados](campos-v2.md).
 Evidencia V1 conservada en [validación V1](validacion-v1.md).
 
@@ -57,9 +58,8 @@ Desactivar traces/HAR/vídeos y logs de acceso; evidencias con datos exclusivame
 ## Casos de aceptación
 
 Distribución de V2-02: A01–A08 comprobados en V2-02A mediante esquemas/servicios
-sobre PostgreSQL y rutas HTTP de lectura; los POST V2 aún no se publican.
-Su validación HTTP de alta se completa al activar POST idempotentes en V2-02B,
-junto con I01–I13, A09 y R01. A10 requiere frontend y continúa en V2-05/06.
+sobre PostgreSQL y rutas HTTP de lectura. POST V2 publicados y comprobados
+con idempotencia en V2-02B, junto con I01–I13, A09 y R01. A10 requiere frontend y continúa en V2-05/06.
 Plan detallado y aceptación por hito: [V2](../plans/v2-interfaz-admision.md).
 
 | Caso | Prueba y resultado exigido | Fase / origen |
@@ -116,6 +116,8 @@ del registro de prueba, sin cambiar el reloj del sistema ni esperar 24 horas.
 - M2-03: pendiente de recorrido completo/pruebas y respuesta explícita del usuario.
 
 Cada resultado futuro indicará caso, versión, comando, conteos, resultado y límites.
-Esta matriz conserva la cobertura prevista; sólo A01–A08 tienen evidencia de
-ejecución V2-02A. R01 parcialmente comprobado por regresión/migración; idempotencia
-y navegador pendientes. M2-01/02/03 no se consideran revisiones ejecutadas.
+Esta matriz conserva la cobertura prevista; A01–A08 tienen evidencia de
+ejecución V2-02A; I01–I13, A09 y R01 pasan en
+[evidencia V2-02B](evidencia-v2-02b.md). Navegador pendiente. M2-01/02/03 no se consideran revisiones ejecutadas.
+
+Validación vigente del backend: `backend/.venv/bin/python backend/scripts/verify_v2_02b.py`.
