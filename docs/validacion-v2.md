@@ -4,7 +4,7 @@ Fecha: 2026-10-03. A01–A08 comprobados en V2-02A; I01–I13/A09/R01 en V2-02B.
 316 pruebas backend pasan y altas/replay/reinicios HTTP reales comprobados.
 V2-03 añade 16 pruebas de navegador de identidad/contextos/rutas: [evidencia](evidencia-v2-03.md).
 [Evidencia 02A](evidencia-v2-02a.md), [evidencia 02B](evidencia-v2-02b.md) y
-[resultados vigentes](evidencia/v2-02b-resultados.json). Recorrido de búsqueda/altas pendiente.
+[resultados vigentes](evidencia/v2-02b-resultados.json). Recorrido de búsqueda/altas comprobado en [V2-05](evidencia-v2-05.md).
 Contrato: [revisión 2](contrato-v2.md) y [campos ampliados](campos-v2.md).
 Evidencia V1 conservada en [validación V1](validacion-v1.md).
 
@@ -60,7 +60,7 @@ Desactivar traces/HAR/vídeos y logs de acceso; evidencias con datos exclusivame
 
 Distribución de V2-02: A01–A08 comprobados en V2-02A mediante esquemas/servicios
 sobre PostgreSQL y rutas HTTP de lectura. POST V2 publicados y comprobados
-con idempotencia en V2-02B, junto con I01–I13, A09 y R01. A10 requiere frontend y continúa en V2-05/06.
+con idempotencia en V2-02B, junto con I01–I13, A09 y R01. A10 comprobado en V2-05; recuperación/entrega técnica comprobada en V2-06.
 Plan detallado y aceptación por hito: [V2](../plans/v2-interfaz-admision.md).
 
 | Caso | Prueba y resultado exigido | Fase / origen |
@@ -114,16 +114,23 @@ del registro de prueba, sin cambiar el reloj del sistema ni esperar 24 horas.
   en revisión 2; [bocetos](bocetos-v2.html) y [guion](evidencia-v2-01.md) actualizados.
   No atribuir revisión visual ejecutada ni aceptación clínica; desarrollo autorizado.
 - M2-02: preparada con comandos, datos y guion en [evidencia V2-04](evidencia-v2-04.md); revisión humana pendiente.
-- M2-03: pendiente de recorrido completo/pruebas y respuesta explícita del usuario.
+- M2-03: guion completo preparado en [V2-06](evidencia-v2-06.md); respuesta explícita del usuario pendiente.
 
 Cada resultado futuro indicará caso, versión, comando, conteos, resultado y límites.
 Esta matriz conserva la cobertura prevista; A01–A08 tienen evidencia de
 ejecución V2-02A; I01–I13, A09 y R01 pasan en
 [evidencia V2-02B](evidencia-v2-02b.md). Base navegador V2-03 comprobada: F01 y base F04/F05; búsqueda/ficha/lecturas V2-04 comprobadas con 26 pruebas de navegador y 316 backend.
 F02/F03/F04 lecturas/A07 UI acreditados en [evidencia V2-04](evidencia-v2-04.md);
-altas/borradores siguen en V2-05/06. M2-01/02/03 no se consideran revisiones ejecutadas.
+V2-05 añade 13 casos de escritura: 39 navegador y 316 backend, F06–F09/F11 y A10.
+[Evidencia V2-05](evidencia-v2-05.md): altas/borradores, evidencia, ingreso, reintentos y auditoría.
+[V2-06](evidencia-v2-06.md) añade 7 casos de recuperación: 46 navegador y 316 backend,
+F10/F12, concurrencia HTTP más barrera SQL I06, preparación repetida y base nueva. M2-01/02/03 no se consideran revisiones ejecutadas.
 
-Validación vigente del backend: `backend/.venv/bin/python backend/scripts/verify_v2_02b.py`.
+Regresión backend: `backend/.venv/bin/python -m pytest -q -c backend/pyproject.toml backend/tests`.
+El verificador histórico V2-02B incluye reinicio físico de PostgreSQL; no ejecutarlo
+durante sesiones compartidas.
 
-Validación frontend/lecturas vigente: `backend/.venv/bin/python backend/scripts/verify_v2_04.py`.
+Validación completa/recorrido vigente: `backend/.venv/bin/python backend/scripts/verify_v2_06.py`.
+Preparación, builds, navegador y regresión: [resultados V2-06](evidencia/v2-06-resultados.json).
+V2-04 y su verificador conservan evidencia histórica de lecturas.
 La evidencia y el verificador de V2-03 se conservan como base histórica.

@@ -59,6 +59,7 @@ export function PatientSearch({ session, identity }: { session: Session; identit
   return <section className="card">
     <div className="section-label">Identificación de pacientes</div><Heading>Pacientes</Heading>
     <p className="lead">Busca y revisa las coincidencias antes de seleccionar. Un nombre parecido no confirma la identidad.</p>
+    {has(identity, 'patients.create') && <Link className="button secondary" to="/patients/new">Registrar paciente nuevo</Link>}
     <form onSubmit={search} className="search-form">
       <label>Tipo de búsqueda<select value={mode} onChange={event => { setMode(event.target.value); setQuery(null); setValidation('') }}><option value="identity">Datos de identidad</option><option value="unidentified">Identidad desconocida registrada en V2</option></select></label>
       {mode === 'identity' && <>

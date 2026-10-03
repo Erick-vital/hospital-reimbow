@@ -2,8 +2,8 @@
 
 Fecha: 2026-10-02. Actualizado: 2026-10-03. Estado: V2-01 completada técnicamente;
 ampliación administrativa aprobada el 2026-10-03 y concretada en contrato revisión 2.
-V2-02A, V2-02B, V2-03 y V2-04 completadas técnicamente el 2026-10-03.
-Revisión visual humana no realizada; M2-02 preparada. Siguiente fase: **V2-05 — Registro y apertura de episodios**.
+V2-02A, V2-02B, V2-03, V2-04 y V2-05 completadas técnicamente el 2026-10-03.
+Revisión visual humana no realizada; M2-02 preparada. Siguiente fase: **V2-06 — Recuperación, validación y entrega**.
 Base: V1-01–07 completadas, commit `df01151` en la rama local `main`.
 
 ## Objetivo y autorización
@@ -377,40 +377,72 @@ Capturas inspeccionadas por el agente, sin atribuir revisión humana ni aceptaci
 
 ### V2-05 — Registro y apertura de episodios
 
+Estado: **completada técnicamente el 2026-10-03**; revisión funcional humana pendiente.
+El usuario solicitó guardar los cambios previos y continuar V2-05; commit `45fb1e6`.
 Depende de V2-02A, V2-02B y V2-04.
 
-- [ ] Alta ligada a búsqueda válida; modificación de datos invalida evidencia
+- [x] Alta ligada a búsqueda válida; modificación de datos invalida evidencia
   incompatible; preservar borrador y solicitar nueva búsqueda cuando expire.
-- [ ] Alta ampliada/desconocida y verified con permiso/evidencia; listas de contactos,
+- [x] Alta ampliada/desconocida y verified con permiso/evidencia; listas de contactos,
   razones de ausencia y descriptores separados, sin datos inventados.
-- [ ] Captura de ingreso/catálogos, pendientes en emergency y campos requeridos
+- [x] Captura de ingreso/catálogos, pendientes en emergency y campos requeridos
   en outpatient/inpatient; sin selector de prioridad ni triage improvisado.
-- [ ] Confirmación de paciente/tipo antes de abrir atención y resultado con folio.
-- [ ] Bloqueo de doble envío, reintento idempotente y conflictos explicados.
-- [ ] Consulta autorizada de auditoría para comprobar el recorrido.
+- [x] Confirmación de paciente/tipo antes de abrir atención y resultado con folio.
+- [x] Bloqueo de doble envío, reintento idempotente y conflictos explicados.
+- [x] Consulta autorizada de auditoría para comprobar el recorrido.
 
 Aceptación: recorrido completo desde navegador con paciente existente, nuevo y
 desconocido; 409/422 permiten corregir sin duplicar; permisos comprobados también
 con peticiones directas. Abrir otra atención es una nueva intención explícita.
 
+Entregados: formularios de registro ampliado/desconocido/verificado, búsqueda
+compatible dentro del borrador con candidatos paginados, confirmación, ingreso
+y catálogos; intenciones congeladas en memoria, doble envío bloqueado, replay
+y auditoría filtrable/paginada. La búsqueda de la pantalla general no se transfiere
+al formulario: éste obtiene un acuse ligado exactamente a los datos que dará de alta.
+Cambiar identidad invalida búsqueda/evidencia; 422/409 de rechazo conservan borrador.
+Se corrigió el esquema HTTP de auditoría para admitir los eventos persistidos de
+catálogos/replay, que antes podían causar 500 en consultas sin filtro.
+39 pruebas navegador/API y 316 backend pasan; builds false/true y typecheck pasan.
+Filas previas, configuración y lock conservados; fixtures sólo en hospital_test.
+[Evidencia y límites](../docs/evidencia-v2-05.md),
+[resultados](../docs/evidencia/v2-05-resultados.json) y verificador
+`backend/.venv/bin/python backend/scripts/verify_v2_05.py`.
+Capturas revisadas técnicamente; M2-02/03 no aprobadas por una persona.
+Concurrencia HTTP/backend permanece acreditada en V2-02B; V2-06 cierra
+recuperación y validación funcional, sin sustituir concurrencia por secuencias.
+
 ### V2-06 — Recuperación, validación y entrega
 
 Depende de V2-01–05.
 
-- [ ] Suite backend sobre PostgreSQL y pruebas de navegador sobre API real;
+- [x] Suite backend sobre PostgreSQL y pruebas de navegador sobre API real;
   aislamiento de test, sin escrituras clínicas de prueba en hospital_dev.
-- [ ] Respuesta perdida después de commit, doble clic, petición concurrente,
+- [x] Respuesta perdida después de commit, doble clic, petición concurrente,
   cambio de paciente/actor con respuesta tardía, búsqueda expirada y base caída.
-- [ ] Comprobar falta de autorización, campos restringidos, navegación por teclado,
+- [x] Comprobar falta de autorización, campos restringidos, navegación por teclado,
   identificación visible y errores con correlación sin datos sensibles.
-- [ ] Preparación repetible, guía de instalación/arranque/build/pruebas, comandos
+- [x] Preparación repetible, guía de instalación/arranque/build/pruebas, comandos
   reproducibles, resultados y límites; conservar evidencia original V1.
-- [ ] Preparar M2-03 y registrar respuesta explícita; actualizar plan y ESTADO.
+- [x] Preparar M2-03 con arranque/URL/actores/datos/guion; actualizar plan y ESTADO.
+- [ ] Registrar respuesta funcional explícita a M2-03 (pendiente del usuario).
 
 Aceptación técnica: otra sesión reproduce recorrido, permisos y reintentos sin
 duplicados; scripts preservan bases/configuración; regresión V1 pasa.
 Aceptación funcional: M2-03 aprobada explícitamente. Si falta, registrar «validación
 técnica completada; revisión funcional pendiente», sin declarar aprobación humana.
+
+Resultado 2026-10-03: **validación técnica completada; revisión funcional pendiente**.
+46 casos de navegador/API y 316 backend PostgreSQL pasan. Typecheck/builds false/true
+pasan; preparación repetida dos veces y migración desde cero/repetida/check comprobadas.
+Filas previas de ambas bases, secuencias, configuración 0600 y lock conservados.
+Aviso de recuperación disponible tras recarga/cambio de actor; desconocido sin folio
+remite al supervisor, confirmación con foco de teclado. Base inaccesible real en API
+propia sin detener PostgreSQL compartido; reinicio físico acreditado en V2-02B.
+Concurrencia HTTP simultánea más I06 con barrera SQL/conexiones independientes.
+[Evidencia y guion M2-03](../docs/evidencia-v2-06.md),
+[resultados](../docs/evidencia/v2-06-resultados.json), verificador
+`backend/.venv/bin/python backend/scripts/verify_v2_06.py`.
 
 ## Puertas de revisión funcional
 
@@ -446,11 +478,10 @@ ninguna casilla se marca por tener sólo un documento, endpoint o captura.
 
 ## Próximo paso
 
-La siguiente fase es **V2-05**, registro ampliado y apertura de episodios idempotentes,
-con búsqueda vigente, borradores en memoria y confirmación de paciente/tipo.
-Alcance autorizado; no pedir confirmación repetida para la ampliación aprobada.
-M2-01 conserva revisión visual humana pendiente; M2-02 preparada con guion y datos en
-[evidencia V2-04](../docs/evidencia-v2-04.md), sin respuesta humana registrada.
-PostgreSQL sigue en loopback, procesos temporales cerrados e identidad por defecto
-apagada. Las lecturas completas están comprobadas; formularios y auditoría visual
-siguen pendientes. No atribuir aceptación funcional ni clínica.
+V2-01–06 completas técnicamente; revisión funcional M2-01/02/03 pendiente.
+Guion completo con comandos y datos en [V2-06](../docs/evidencia-v2-06.md).
+[Plan V3 preparado](v3-expediente-basico.md), solicitado por el usuario:
+formularios simples y expediente básico (lista de atenciones, contexto, signos
+vitales, alergias y nota en borrador). Contrato/roles/diseño por precisar; no iniciar
+V3 sin autorización de implementación. La prioridad del MVP conserva diferidas las
+mejoras administrativas de identidad/trazabilidad en propuesta §8.1.

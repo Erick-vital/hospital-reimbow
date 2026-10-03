@@ -4,7 +4,8 @@ Fecha: 2026-10-03. El usuario aprobó ampliar V2 con «ok hazlo entonces» tras 
 recomendación de incorporar identificación, contactos, caracterización del
 desconocido, ingreso administrativo y reglas de verificación. Este documento
 concreta esa decisión. Backend administrativo/lecturas implementados y comprobados
-en [V2-02A](evidencia-v2-02a.md); POST V2/idempotencia y frontend pendientes.
+en [V2-02A](evidencia-v2-02a.md); POST/idempotencia en V2-02B, frontend en
+[V2-05](evidencia-v2-05.md) y recuperación en [V2-06](evidencia-v2-06.md).
 Origen: [Pacientes](requerimientos/2.%20PACIENTE.md),
 [Admisión](requerimientos/1.%20ADMISION.md) y [propuesta técnica](propuesta-tecninca.md).
 

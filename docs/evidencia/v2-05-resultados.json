@@ -1,0 +1,265 @@
+{
+  "phase": "V2-05",
+  "date_utc": "2026-10-03T21:01:58.798098+00:00",
+  "lock_sha256": "686adce28b28dec765450cde828a02fbd98cc050d9162f8ebabd838de03b2663",
+  "typecheck": true,
+  "build_demo_false": true,
+  "build_demo_true": true,
+  "demo_selector_actor_headers_absent_from_build": true,
+  "credentials_absent_from_build": true,
+  "browser": {
+    "date_utc": "2026-10-03T21:03:06.941Z",
+    "total": 39,
+    "status": "passed",
+    "cases": [
+      {
+        "case": "B01 · navegador y proxy consultan identidad real PostgreSQL",
+        "status": "passed",
+        "duration_ms": 485
+      },
+      {
+        "case": "B02 · frontend-off rechaza acceso y protege el contexto",
+        "status": "passed",
+        "duration_ms": 233
+      },
+      {
+        "case": "B02 · backend-off rechaza acceso y protege el contexto",
+        "status": "passed",
+        "duration_ms": 230
+      },
+      {
+        "case": "B02 · build rechaza acceso y protege el contexto",
+        "status": "passed",
+        "duration_ms": 168
+      },
+      {
+        "case": "B03 · build incluso con bandera true excluye selector y actores",
+        "status": "passed",
+        "duration_ms": 3
+      },
+      {
+        "case": "B04 · URL directa y recarga resuelven paciente y episodio",
+        "status": "passed",
+        "duration_ms": 978
+      },
+      {
+        "case": "B05 · actor inactivo limpia datos y permiso no se obtiene alterando selector",
+        "status": "passed",
+        "duration_ms": 1099
+      },
+      {
+        "case": "B06 · consulta-demo, cabecera de rol falsa y permisos de rutas",
+        "status": "passed",
+        "duration_ms": 2566
+      },
+      {
+        "case": "B07 · respuesta real demorada se descarta al cambiar actor",
+        "status": "passed",
+        "duration_ms": 858
+      },
+      {
+        "case": "B07 · respuesta real demorada se descarta al cambiar patient",
+        "status": "passed",
+        "duration_ms": 833
+      },
+      {
+        "case": "B08 · error real tardío no reemplaza el contexto nuevo",
+        "status": "passed",
+        "duration_ms": 668
+      },
+      {
+        "case": "B09 · 404 limpia paciente previo, errores llevan correlación",
+        "status": "passed",
+        "duration_ms": 1346
+      },
+      {
+        "case": "B10 · navegación atrás y ciclo pageshow revalidan identidad",
+        "status": "passed",
+        "duration_ms": 2008
+      },
+      {
+        "case": "B11 · fallo de transporte recuperable, etiquetas, teclado y foco",
+        "status": "passed",
+        "duration_ms": 326
+      },
+      {
+        "case": "B12 · 401 real en consulta limpia contexto y revalida identidad",
+        "status": "passed",
+        "duration_ms": 474
+      },
+      {
+        "case": "B13 · 403 real en consulta limpia contexto y revalida permisos",
+        "status": "passed",
+        "duration_ms": 460
+      },
+      {
+        "case": "R01 · filtros, selección, paginación y resultados coinciden con API",
+        "status": "passed",
+        "duration_ms": 2021
+      },
+      {
+        "case": "R02 · identificador exacto, búsqueda repetida, vacío y 422 recuperable",
+        "status": "passed",
+        "duration_ms": 2348
+      },
+      {
+        "case": "R03 · búsqueda real atrasada no sustituye la vigente",
+        "status": "passed",
+        "duration_ms": 1551
+      },
+      {
+        "case": "R04 · ficha ampliada, colecciones y calidad sin exponer evidencia",
+        "status": "passed",
+        "duration_ms": 1542
+      },
+      {
+        "case": "R05 · desconocido sin identidad ni nacimiento inventados",
+        "status": "passed",
+        "duration_ms": 2515
+      },
+      {
+        "case": "R06 · episodios paginados, ingreso y ambos folios separados",
+        "status": "passed",
+        "duration_ms": 1403
+      },
+      {
+        "case": "R07 · consulta-demo restringe demografía e intake en ficha, búsqueda y episodio",
+        "status": "passed",
+        "duration_ms": 3166
+      },
+      {
+        "case": "R08 · fallo de lista conserva identificación y búsqueda recupera transporte",
+        "status": "passed",
+        "duration_ms": 3051
+      },
+      {
+        "case": "R09 · filtros AND, acentos y comodines literales",
+        "status": "passed",
+        "duration_ms": 1385
+      },
+      {
+        "case": "R10 · 404 de episodio y lista tardía no contaminan otra ficha",
+        "status": "passed",
+        "duration_ms": 1303
+      },
+      {
+        "case": "W01 · alta ampliada, listas, ausencias y apertura desde paciente nuevo",
+        "status": "passed",
+        "duration_ms": 1704
+      },
+      {
+        "case": "W02 · desconocido sin identidad inventada, rango y urgencia pendiente",
+        "status": "passed",
+        "duration_ms": 982
+      },
+      {
+        "case": "W03 · paciente existente, catálogos y campos requeridos por tipo",
+        "status": "passed",
+        "duration_ms": 486
+      },
+      {
+        "case": "W04 · verificación supervisor, cambio de identidad invalida evidencia/búsqueda",
+        "status": "passed",
+        "duration_ms": 794
+      },
+      {
+        "case": "W05 · respuesta perdida tras commit, doble clic y replay conservan cuerpo/clave y un alta",
+        "status": "passed",
+        "duration_ms": 617
+      },
+      {
+        "case": "W06 · 409 identificador duplicado conserva borrador y permite seleccionar existente",
+        "status": "passed",
+        "duration_ms": 2968
+      },
+      {
+        "case": "W07 · búsqueda expirada real en PostgreSQL conserva borrador y vuelve a buscar",
+        "status": "passed",
+        "duration_ms": 9894
+      },
+      {
+        "case": "W08 · 422 real permite corregir rango sin perder descriptor ni duplicar",
+        "status": "passed",
+        "duration_ms": 3338
+      },
+      {
+        "case": "W09 · auditoría autorizada filtra creación y consulta-demo recibe 403 directo",
+        "status": "passed",
+        "duration_ms": 3174
+      },
+      {
+        "case": "W10 · cambio de actor/recarga descarta borrador y URL resuelve contexto",
+        "status": "passed",
+        "duration_ms": 1055
+      },
+      {
+        "case": "W11 · episodio con respuesta perdida, replay y otra atención explícita con clave nueva",
+        "status": "passed",
+        "duration_ms": 2852
+      },
+      {
+        "case": "W12 · conflicto de clave real bloquea otro envío y ofrece reconciliación",
+        "status": "passed",
+        "duration_ms": 1327
+      },
+      {
+        "case": "W13 · respuesta de alta tardía no vuelve al cambiar paciente",
+        "status": "passed",
+        "duration_ms": 1473
+      }
+    ],
+    "backend_database": "hospital_test",
+    "fixture_references": {
+      "patient_id": "b3bf3066-14be-417d-a0eb-e1e783249709",
+      "second_patient_id": "9cf1346e-a797-43ae-b5b5-d632729a79f6",
+      "patient_folio": "PAC-000000002734",
+      "admission_id": "e6fd3d0d-16a3-4550-9dcb-306cd9683420",
+      "admission_folio": "EPI-000000000686",
+      "denied_actor": "v203-sin-permisos-ca860bdd065d403bbf5ec4f0d701849f",
+      "test_identifier": "V204-2DB680102EC441DD9E5552840E021710",
+      "unknown_id": "cee74c25-f33e-40e8-8bd1-e554f9daebcb",
+      "unknown_folio": "PAC-000000002742",
+      "legacy_id": "87894159-f67e-46ef-b721-2f6418060d2b"
+    },
+    "services_stopped": true,
+    "frontend_modes": [
+      "demo",
+      "frontend-off",
+      "backend-off",
+      "build"
+    ]
+  },
+  "backend_pytest": {
+    "tests": 316,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "lock_preserved": true,
+  "previous_rows_preserved": true,
+  "configuration_preserved": true,
+  "default_backend_identity_enabled": false,
+  "versions": {
+    "node_modules/@playwright/test": "1.63.0",
+    "node_modules/react": "19.3.0",
+    "node_modules/react-dom": "19.3.0",
+    "node_modules/react-router": "7.18.4",
+    "node_modules/typescript": "7.0.2",
+    "node_modules/vite": "8.3.2"
+  },
+  "acceptance": [
+    "V2-05",
+    "F01–F05 (recorrido ampliado)",
+    "F06/F07 (altas y desconocido)",
+    "F09 (reintento UI tras commit)",
+    "F08 (409/422 y búsqueda vencida)",
+    "F11 (auditoría y replay)",
+    "A07 (permisos UI/directos)",
+    "A10 (búsqueda/evidencia/borrador)"
+  ],
+  "limits": [
+    "V2-06 pendiente: cierre de recuperación, concurrencia adicional UI, base caída y revisión funcional M2-03",
+    "pageshow persisted comprobado con evento de ciclo; sin afirmar restauración bfcache real",
+    "Capturas/revisión técnica no sustituyen M2-01/02/03 ni aceptación clínica"
+  ]
+}

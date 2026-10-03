@@ -87,9 +87,35 @@ def main():
     parser=argparse.ArgumentParser()
     parser.add_argument('--serve',type=int)
     parser.add_argument('--demo',choices=('true','false'),default='true')
+    parser.add_argument('--expire-search', type=str)
+    parser.add_argument('--expire-key', type=str)
+    parser.add_argument('--unavailable-db-port', type=int)
     args=parser.parse_args()
     settings=settings_for_test()
-    if args.serve is not None:
+    if args.expire_key is not None:
+        from uuid import UUID
+        key = UUID(args.expire_key)
+        assert key.version == 4
+        db = Database(settings)
+        try:
+            with db.sessions.begin() as session:
+                assert session.scalar(text('SELECT current_database()')) == 'hospital_test'
+                changed = session.execute(text("UPDATE idempotency_records SET created_at = transaction_timestamp() - interval '25 hours', expires_at = transaction_timestamp() - interval '1 hour' WHERE key = :key AND operation = 'v2.admissions.create' AND created_at > clock_timestamp() - interval '2 minutes'"), {'key': key})
+                assert changed.rowcount == 1
+        finally:
+            db.dispose()
+    elif args.expire_search is not None:
+        from uuid import UUID
+        search_id = UUID(args.expire_search)
+        db = Database(settings)
+        try:
+            with db.sessions.begin() as session:
+                assert session.scalar(text('SELECT current_database()')) == 'hospital_test'
+                changed = session.execute(text("UPDATE patient_searches SET created_at = clock_timestamp() - interval '16 minutes', expires_at = clock_timestamp() - interval '1 second' WHERE id = :id AND created_at > clock_timestamp() - interval '2 minutes'"), {'id': search_id})
+                assert changed.rowcount == 1
+        finally:
+            db.dispose()
+    elif args.serve is not None:
         assert 1024<=args.serve<=65535
         db=Database(settings)
         try:
@@ -100,6 +126,14 @@ def main():
         import uvicorn
         from hospital.main import create_app
         api_settings=Settings(app_env='test',dev_identity_enabled=args.demo=='true')
+        if args.unavailable_db_port is not None:
+            from sqlalchemy.engine import make_url
+            assert 1024 <= args.unavailable_db_port <= 65535
+            # API propia apuntando a un puerto loopback reservado sin PostgreSQL;
+            # ninguna modificación al servicio/base compartidos ni al .env.
+            url = make_url(settings.connection_url).set(port=args.unavailable_db_port)
+            api_settings=Settings(app_env='test',dev_identity_enabled=True,
+                test_database_url=url.render_as_string(hide_password=False))
         uvicorn.run(create_app(api_settings),host='127.0.0.1',port=args.serve,access_log=False,log_level='warning')
     else:
         fixtures(settings)

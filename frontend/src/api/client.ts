@@ -10,6 +10,11 @@ const messages: Record<string, string> = {
   NETWORK_ERROR: 'No fue posible conectar con el servidor. Intenta nuevamente.',
   TIMEOUT: 'La consulta tardó demasiado. Intenta nuevamente.',
   INVALID_RESPONSE: 'El servidor devolvió una respuesta no válida.',
+  SEARCH_REQUIRED: 'La búsqueda previa venció o no corresponde a estos datos. Conserva el borrador y vuelve a buscar coincidencias.',
+  IDENTIFIER_CONFLICT: 'El identificador ya está registrado. Consulta las coincidencias antes de corregir o registrar otra persona.',
+  IDEMPOTENCY_IN_PROGRESS: 'El alta sigue en curso. Reintenta la misma intención.',
+  IDEMPOTENCY_CONFLICT: 'La clave ya se usó con otros datos. Consulta los registros antes de iniciar otra alta.',
+  IDEMPOTENCY_EXPIRED: 'La garantía del intento venció. Consulta los registros antes de iniciar otra alta.',
 }
 
 export class ApiError extends Error {
@@ -35,7 +40,7 @@ export interface RequestContext {
   onAccessDenied: (error: ApiError) => void
 }
 
-export async function get<T>(path: string, context: RequestContext, options: { signal?: AbortSignal; identity?: boolean } = {}): Promise<T> {
+export async function get<T>(path: string, context: RequestContext, options: { signal?: AbortSignal; identity?: boolean; body?: string; key?: string } = {}): Promise<T> {
   if (!path.startsWith('/api/')) throw new Error('Ruta API relativa requerida')
   const controller = new AbortController()
   const unregister = context.register(controller)
@@ -50,7 +55,11 @@ export async function get<T>(path: string, context: RequestContext, options: { s
   try {
     const headers: Record<string, string> = { Accept: 'application/json' }
     if (DEMO_ENABLED && context.actorKey) headers['X-Dev-Actor'] = context.actorKey
-    const response = await fetch(path, { headers, signal: controller.signal, cache: 'no-store', credentials: 'omit' })
+    if (options.body !== undefined) {
+      headers['Content-Type'] = 'application/json'
+      if (options.key) headers['Idempotency-Key'] = options.key
+    }
+    const response = await fetch(path, { method: options.body === undefined ? 'GET' : 'POST', body: options.body, headers, signal: controller.signal, cache: 'no-store', credentials: 'omit' })
     current()
     const rawId = response.headers.get('X-Request-ID')
     const requestId = rawId && /^[0-9a-f]{8}(-[0-9a-f]{4}){3}-[0-9a-f]{12}$/i.test(rawId) ? rawId : undefined

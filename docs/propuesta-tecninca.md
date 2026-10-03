@@ -1,6 +1,6 @@
 # Propuesta técnica de Reimbow HIS
 
-Fecha: 2026-10-02. Documento de diseño; no acredita implementación ni aptitud para uso clínico.
+Fecha: 2026-10-02. Actualizado: 2026-10-03. Documento de diseño; no acredita implementación ni aptitud para uso clínico.
 
 ## 1. Alcance y evidencia disponible
 
@@ -140,6 +140,73 @@ Plantillas, escalas y catálogos tendrán versiones. La reutilización de inform
 Se recomienda comenzar por backend y acompañarlo después con un frontend mínimo. La primera demostración operativa será búsqueda → paciente nuevo o existente → episodio → ficha. El primer piloto clínico posterior abarcará ingreso → valoración → nota supervisada → prescripción → dispensación → administración → egreso.
 
 Las fases posteriores incorporarán documentación clínica, medicación, cuidados ampliados, estudios, integraciones y módulos administrativos pendientes. Cada requisito tendrá implementación y criterio de aceptación trazables. La revisión por usuarios de las áreas complementará las pruebas automáticas.
+
+### 8.1 Prioridad del MVP y mejoras reservadas para versiones posteriores
+
+Decisión del usuario del 2026-10-03: estamos construyendo un MVP. **V3 deberá
+incluir la simplificación de formularios y priorizar nuevas funcionalidades con
+buena base técnica.** La propuesta anterior de dedicar V3 a procedencia,
+verificación posterior, regularización de desconocidos, correcciones e historia
+de identidad queda aplazada. No se eliminan esos requisitos ni las garantías ya
+implementadas; no convertir esta prioridad en autorización de implementar V3.
+
+Simplificación confirmada para el futuro alcance V3: mostrar directamente los
+campos de captura, considerar disponible un valor informado y pedir razones de
+ausencia sólo cuando correspondan, con opciones pertinentes para cada campo.
+Mantener separados valor, ausencia y verificación. No reducir todas las ausencias
+a una etiqueta genérica ni inventar información para avanzar. El control repetido
+por campo de V2 es una decisión de interfaz, no una presentación obligatoria de
+los requerimientos. El diseño concreto y su comprobación funcional se precisarán
+en el plan V3; esta actualización no modifica los formularios existentes.
+
+Conservar para próximas versiones las siguientes mejoras. La mayoría ya tienen
+fundamento en los originales; aquí se guarda su concreción técnica y el aplazamiento,
+sin modificar ni duplicar los documentos fuente:
+
+| Mejora futura | Fundamento original | Concreción propuesta, todavía pendiente |
+|---|---|---|
+| Procedencia y verificación posterior | [Pacientes §6–7](requerimientos/2.%20PACIENTE.md#6-estados-de-verificación-de-identidad) | Fuentes paciente/familiar/documento y autor/fecha; verificar campos después del alta, conservando la evidencia de cada comprobación. |
+| Completar identidad de un desconocido | [Pacientes §13](requerimientos/2.%20PACIENTE.md#13-paciente-desconocido) | Conservar UUID/folio/episodios al completar identidad; conflictos de identificadores se envían a revisión. Fusión/separación requieren diseño y aceptación propios. |
+| Correcciones con historial y permisos | [Admisión §26](requerimientos/1.%20ADMISION.md#26-corrección-de-datos) y [Pacientes §37](requerimientos/2.%20PACIENTE.md#37-auditoría) | Motivo, antes/después, autor/fecha y autorización adicional para cambios críticos; protección contra sobrescritura concurrente y reevaluación de la evidencia afectada. |
+| Historia comprensible de identidad | [Pacientes §7/37](requerimientos/2.%20PACIENTE.md#37-auditoría) | Vista de procedencia, verificaciones y cambios con permisos. La pantalla concreta es propuesta de diseño; los originales exigen los registros/auditoría, no esta interfaz específica. |
+
+### 8.2 Recomendación de ampliación funcional para V3 — por decidir
+
+Después de cerrar V2-06, se recomienda un **expediente clínico básico** que permita
+el recorrido paciente → episodio → signos vitales/alergias → nota médica en borrador
+→ consulta compartida autorizada. Esta recomendación responde a la prioridad de
+ampliar el MVP; se concreta en el [plan V3 preparado](../plans/v3-expediente-basico.md),
+solicitado el 2026-10-03. Su preparación no autoriza implementación; contrato, roles
+y revisión de formularios siguen pendientes.
+
+| Bloque sugerido | Funcionalidad visible | Fundamento y límite inicial |
+|---|---|---|
+| Formularios simples | Captura directa y ausencias pertinentes. | Prioridad confirmada en §8.1; conservar reglas de integridad V2. |
+| Lista de episodios abiertos | Encontrar atenciones por tipo/sede/servicio disponibles y abrir su contexto clínico. | [Médico §27–29](requerimientos/4.%20MEDICO.md#27-panel-principal-del-médico); recorte del tablero, sin aparentar camas/asignaciones todavía no implementadas. |
+| Expediente básico | Vista por paciente y episodio, identificación permanente y resumen de la información realmente registrada. | [Expediente §4–7 y EHR-RF-001/002](requerimientos/3.%20EXPEDIENTE%20CLINICO.md#4-expediente-longitudinal); sin afirmar expediente completo. |
+| Registro y consulta de signos vitales | Mediciones con unidades, fecha clínica/registro, autor y contexto pertinente; tabla y evolución básica. | [Enfermería §10–11](requerimientos/5.%20ENFERMERIA.md#10-signos-vitales) y [Expediente §23](requerimientos/3.%20EXPEDIENTE%20CLINICO.md#23-signos-vitales); sin reglas de alerta, triage ni recomendaciones clínicas improvisadas. |
+| Alergias básicas | Registro compartido, fuente y autor; distinguir no documentado, desconocido y sin alergias conocidas. | [Expediente §12 / EHR-RF-010](requerimientos/3.%20EXPEDIENTE%20CLINICO.md#12-alergias-y-reacciones-adversas); no deducir ausencia desde una lista vacía. |
+| Nota médica inicial | Una plantilla acotada con motivo, antecedentes relevantes, exploración, valoración y plan narrativo; guardar/recuperar borrador con versiones y autoría. | [Expediente §13–15 / EHR-RF-003/004/019](requerimientos/3.%20EXPEDIENTE%20CLINICO.md#13-notas-clínicas); explícitamente no firmada, sin órdenes ejecutables ni firma clínica simulada como válida. |
+
+La misma medición o alergia tendrá una fuente clínica común, consultable por Médico
+y Enfermería según permisos, sin copias divergentes entre módulos. Como referencia
+de modelado, [FHIR R5 Observation](https://hl7.org/fhir/R5/observation.html) separa
+mediciones de diagnósticos y relaciona observaciones con paciente, encuentro y tiempo
+clínico. Consultar ese modelo no implica implementar interoperabilidad FHIR en V3.
+
+Base técnica mínima propuesta: PostgreSQL/migraciones, vínculo inequívoco a paciente
+y episodio, permisos del servidor por operación, autor/fechas, auditoría transaccional,
+protección de ediciones concurrentes y pruebas de navegador/API. No convertir estas
+bases en el desarrollo completo de las mejoras administrativas aplazadas en §8.1.
+El MVP local mantiene datos ficticios e identidad demo explícita; acceso de personas
+reales exige abordar autenticación antes de habilitarlo.
+
+Aceptación propuesta: crear paciente/episodio, capturar mediciones como Enfermería,
+consultarlas como Médico junto con alergias, guardar una nota en borrador y volver
+a abrirla sin perder datos ni confundir paciente/episodio. Roles clínicos demo y su
+matriz deberán definirse expresamente; los actores administrativos V2 no los sustituyen.
+Firma/supervisión clínica completa, prescripción/dispensación/administración,
+camas/traslados, cobros, adjuntos e integraciones se evaluarán en siguientes versiones.
 
 ## 9. Integraciones, operación y decisiones abiertas
 

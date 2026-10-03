@@ -124,6 +124,14 @@ def test_a02_explicit_unknown_without_descriptors_and_with_age(client, database,
     page = client.get('/api/v2/patients?unidentified=true', headers=headers())
     assert page.status_code == 200 and page.json()['total'] >= 2
     ids = {item['id'] for item in page.json()['items']}
+    # hospital_test conserva fixtures HTTP de otras ejecuciones. La búsqueda es
+    # paginada: los dos recursos de esta transacción pueden estar fuera de página 1.
+    offset = page.json()['limit']
+    while offset < page.json()['total']:
+        following = client.get(f'/api/v2/patients?unidentified=true&limit=100&offset={offset}', headers=headers())
+        assert following.status_code == 200
+        ids.update(item['id'] for item in following.json()['items'])
+        offset += following.json()['limit']
     assert str(plain['id']) in ids and str(rich['id']) in ids
     assert client.get('/api/v1/patients?unidentified=true', headers=headers()).json()['items'] == []
 

@@ -12,7 +12,7 @@ from hospital.core.database import get_session
 from hospital.identity.dependencies import permitted
 
 router = APIRouter(tags=["Auditoría"])
-Action = Literal["patients.search", "patients.create", "patients.read", "admissions.create", "admissions.read", "admissions.list", "audit.read", "identity.read"]
+Action = Literal["patients.search", "patients.create", "patients.read", "admissions.create", "admissions.read", "admissions.list", "audit.read", "identity.read", "catalogs.read", "patients.replay", "admissions.replay"]
 
 
 class AuditResponse(BaseModel):

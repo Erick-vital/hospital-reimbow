@@ -210,6 +210,8 @@ test('B11 · fallo de transporte recuperable, etiquetas, teclado y foco', async 
   await page.getByRole('button', { name: 'Revalidar acceso' }).click()
   await expect(page.getByRole('heading', { name: 'Pacientes', exact: true })).toBeFocused()
   await page.keyboard.press('Tab')
+  await expect(page.getByRole('link', { name: 'Registrar paciente nuevo' })).toBeFocused()
+  await page.keyboard.press('Tab')
   await expect(page.getByLabel('Tipo de búsqueda')).toBeFocused()
   await page.getByRole('button', { name: 'Revalidar acceso' }).focus()
   await page.keyboard.press('Enter')
