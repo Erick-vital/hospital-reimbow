@@ -63,7 +63,7 @@ def test_i01_i09_i13_replay_expired_search_headers_audit(client, sessions, versi
     assert first.headers['X-Request-ID'] != again.headers['X-Request-ID']
     assert again.headers['Cache-Control'] == 'no-store'
     with sessions() as s:
-        events = s.scalars(select(AuditEvent).where(AuditEvent.resource_id == UUID(first.json()['id']))).all()
+        events = s.scalars(select(AuditEvent).where(AuditEvent.resource_id == UUID(first.json()['id'])).order_by(AuditEvent.created_at, AuditEvent.id)).all()
         assert [e.action for e in events] == ['patients.create','patients.replay']
         assert events[-1].event_metadata == {}
     rejected = post(client, body, uuid4(), version=version)

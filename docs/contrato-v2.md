@@ -1,7 +1,8 @@
 # Contrato V2 — revisión 2, ampliación administrativa
 
 Fecha: 2026-10-03. Lecturas y servicios administrativos comprobados en V2-02A;
-POST V2 e idempotencia comprobados en V2-02B. Frontend pendiente.
+POST V2 e idempotencia comprobados en V2-02B. Base frontend comprobada en V2-03;
+búsqueda/ficha ampliada/formularios pendientes de V2-04/05.
 Ampliación aprobada por el usuario con «ok hazlo entonces»; revisión visual no realizada.
 Base: [contrato V1, revisión 4](contrato-v1.md).
 Alcance y exclusiones: [plan V2](../plans/v2-interfaz-admision.md).
@@ -176,4 +177,5 @@ Caché del cliente: [Request.cache](https://developer.mozilla.org/en-US/docs/Web
 Los bocetos no demuestran autorización, idempotencia ni integración implementadas.
 Backend ampliado/lecturas acreditados en [evidencia V2-02A](evidencia-v2-02a.md).
 Idempotencia y POST V2 acreditados en [evidencia V2-02B](evidencia-v2-02b.md).
-Recorrido de navegador pendiente. SEARCH_REQUIRED conserva el código HTTP 422 de V1.
+Base de identidad/contextos/rutas comprobada en [V2-03](evidencia-v2-03.md).
+Recorrido de búsqueda/altas en navegador pendiente. SEARCH_REQUIRED conserva 422 de V1.

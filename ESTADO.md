@@ -6,55 +6,56 @@ Actualizado: 2026-10-03.
 
 V2: interfaz local de Pacientes/Admisión; ejecución y ampliación autorizadas.
 Plan activo: [V2 interfaz y admisión](plans/v2-interfaz-admision.md).
-Base completada: [V1 backend](plans/v1-base-backend.md), commit `df01151`.
-Contrato/ampliación/V2-02A guardados por solicitud en commit `a5a592d`.
+Base V1 completa: [plan](plans/v1-base-backend.md), commit `df01151`.
+Contrato/ampliación/V2-02A: `a5a592d`; V2-02B guardada en `6e2c926`.
 Propuesta: [diseño técnico](docs/propuesta-tecninca.md).
 
 ## Avance comprobado
 
 - V1-01–07 completas; [validación](docs/validacion-v1.md) y [guía](docs/desarrollo-v1.md).
 - V2-01: contrato/bocetos/matriz y ampliación administrativa aprobada/concretada.
-- [Contrato revisión 2](docs/contrato-v2.md), [campos](docs/campos-v2.md), [bocetos](docs/bocetos-v2.html).
-- [Matriz/comandos](docs/validacion-v2.md); [decisiones V2-01](docs/evidencia-v2-01.md).
-- V2-02A completa: perfiles/listas/desconocido, verificación, ingreso y catálogos.
-- Lecturas V2 y permisos/correlación/auditoría; [evidencia 02A](docs/evidencia-v2-02a.md).
+- [Contrato](docs/contrato-v2.md), [campos](docs/campos-v2.md), [bocetos](docs/bocetos-v2.html).
+- V2-02A completa: perfiles/listas/desconocido, verificación, ingreso/catálogos/lecturas.
 - V2-02B completa: idempotencia PostgreSQL y POST V2 de pacientes/episodios.
-- Clave opcional V1/obligatoria V2, replay 200/24 h, reservas vencidas conservadas.
-- Concurrencia con barrera/conexiones distintas, rollback, permisos y expiración probados.
-- Respuesta perdida después del commit y reinicios API/PostgreSQL recuperan mismo recurso.
-- I01–I13/A09/R01: 316 pruebas pasan, sin fallos ni omisiones; espera HTTP 5.011 s.
-- [Evidencia/comandos 02B](docs/evidencia-v2-02b.md); [resultados](docs/evidencia/v2-02b-resultados.json).
-- PostgreSQL 18.6, migraciones 0001–0006; desde cero y desde 0005 con datos comprobadas.
-- UUID/folios/fechas/autores/filas/secuencias previas conservados; upgrade/check repetidos.
-- PostgreSQL en loopback/volumen conservado; APIs temporales cerradas; identidad apagada.
-- Node 20.19.5/npm 10.8.2; sin frontend instalado ni lock/build.
-- Cambios V2-02B comprobados y pendientes de commit; bases ficticias conservadas.
+- Clave opcional V1/obligatoria V2; replay 200/24 h, reservas vencidas conservadas.
+- Concurrencia, rollback, permisos, expiración, pérdida de respuesta y reinicios probados.
+- [Evidencia 02A](docs/evidencia-v2-02a.md) y [02B](docs/evidencia-v2-02b.md).
+- V2-03 completa: React/TypeScript/Vite/router, lock y proxy dev/preview en loopback.
+- Cliente HTTP, identidad/permisos, contextos cancelables y rutas protegidas básicas.
+- Build false/true excluye selector/actores/cabecera demo; sin credenciales de base.
+- 16 pruebas navegador/API/PostgreSQL y 316 backend pasan, sin fallos ni omisiones.
+- Typecheck/npm ci/build comprobados; capturas escritorio/móvil inspeccionadas técnicamente.
+- [Guía V2](docs/desarrollo-v2.md), [evidencia 03](docs/evidencia-v2-03.md), [resultados](docs/evidencia/v2-03-resultados.json).
+- Node 20.19.5/npm 10.8.2; paquetes y Chromium instalados sólo localmente.
+- PostgreSQL 18.6/migraciones 0001–0006; configuración/filas/secuencias previas conservadas.
+- APIs/Vite/preview/navegador temporales cerrados; PostgreSQL/volumen conservados.
+- Identidad backend apagada por defecto; fixtures nuevas sólo en hospital_test.
+- Entrega V2-03 comprobada y guardada en Git; test de auditoría ordenado explícitamente.
 
 ## Decisiones vigentes
 
 - PostgreSQL desde el inicio, sin SQLite; FastAPI/Pydantic/SQLAlchemy/Alembic.
 - UUID/folios servidor; paciente distinto de episodio/expediente, sin fusión automática.
 - Identidad ficticia sólo explícita en desarrollo/test; rechazada en producción.
-- Sexo registrado/nacionalidad, teléfonos/domicilios/contactos múltiples.
-- Desconocido: descriptores/rango estimado/traslado; sin inventar nacimiento/identidad.
-- Ingreso: fecha clínica/sede/servicio/procedencia/motivo; urgencias permite pendientes.
-- Verificación: nombre más nacimiento/CURP, fuente y actor/fecha servidor.
-- Declaraciones V1 sin evidencia se distinguen; /api/v2 conserva esquemas V1.
 - Demografía/intake sensibles requieren permisos; replay usa proyección vigente.
+- Desconocido sin identidad/nacimiento inventados; rango estimado separado.
+- Verificación: nombre más nacimiento/CURP, fuente y actor/fecha servidor; V1 se distingue.
+- Ingreso: fecha clínica/sede/servicio/procedencia/motivo; urgencias permite pendientes.
 - Ausencia distingue desconocido/no proporcionado/no aplica; known no implica verificado.
-- React/TypeScript, proxy local/loopback; datos/intenciones sólo en memoria navegador.
-- Búsqueda vence a los 15 minutos y no se consume; SEARCH_REQUIRED conserva 422.
-- Reserva espera 5 s; restaura lock_timeout/statement_timeout antes del negocio.
+- Datos/intenciones sólo en memoria; actor/ruta invalida generación y cancela solicitudes.
+- 401/403 limpian/revalidan; recarga pierde actor seleccionado y resuelve acceso de nuevo.
+- Búsqueda vence a 15 minutos y no se consume; SEARCH_REQUIRED conserva 422.
+- Reserva espera 5 s y restaura timeouts antes del negocio; reservas sin reutilización.
 - Prioridad/triage, camas, aseguradoras, cobros, adjuntos y clínica completa diferidos.
 
 ## Próximo paso y límites
 
-- Siguiente fase: V2-03, base frontend e identidad local; sin bloqueo actual.
+- Siguiente fase: V2-04, búsqueda/ficha ampliada/episodios; sin bloqueo actual.
 - Desarrollo autorizado; no pedir otra confirmación de la misma ampliación.
-- V2-03–06, navegador/A10 y M2-02/03 pendientes; revisión visual M2-01 no ejecutada.
-- POST V2 operativo localmente; sin autenticación real, AWS ni clínica completa.
-- Para verificar backend vigente usar verify_v2_02b.py; 02A conserva guion histórico.
-- Sin cumplimiento normativo ni preparación productiva afirmados.
+- V2-04–06 pendientes: buscador/ficha/listas completos, formularios/borradores y A10.
+- M2-01 visual humana no ejecutada; M2-02/03 pendientes, capturas no equivalen a aprobación.
+- pageshow comprobado con evento de ciclo; sin afirmar restauración bfcache real.
+- Sin autenticación real, AWS, aceptación clínica, cumplimiento normativo ni aptitud productiva.
 
 ## Mantenimiento
 

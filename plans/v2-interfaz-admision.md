@@ -2,8 +2,8 @@
 
 Fecha: 2026-10-02. Actualizado: 2026-10-03. Estado: V2-01 completada técnicamente;
 ampliación administrativa aprobada el 2026-10-03 y concretada en contrato revisión 2.
-V2-02A y V2-02B completadas y comprobadas el 2026-10-03. Revisión visual no realizada.
-Siguiente fase de ejecución: **V2-03 — Base frontend e identidad local**.
+V2-02A, V2-02B y V2-03 completadas técnicamente el 2026-10-03.
+Revisión visual humana no realizada. Siguiente fase: **V2-04 — Búsqueda, ficha y episodios de lectura**.
 Base: V1-01–07 completadas, commit `df01151` en la rama local `main`.
 
 ## Objetivo y autorización
@@ -312,20 +312,38 @@ y reinicios comprobados; espera HTTP 5.011 s.
 Migración desde cero y desde 0005 con datos V1/V2 preservados; upgrade/check repetidos.
 SEARCH_REQUIRED conserva 422 de V1. La espera de reserva restaura lock_timeout y
 statement_timeout antes del negocio. Sin frontend ni revisiones visuales nuevas.
-Commit previo solicitado: `a5a592d`; los cambios de esta fase quedan para revisión.
+Commit previo a V2-02B: `a5a592d`; entrega de V2-02B guardada después en `6e2c926`.
 
 ### V2-03 — Base frontend e identidad local
 
+Estado: **completada y comprobada el 2026-10-03**.
+
 Depende de V2-01; puede avanzar junto con V2-02 cuando ambas estén autorizadas.
 
-- [ ] Estructura React/TypeScript, lock, arranque/build y proxy loopback.
-- [ ] Cliente HTTP con correlación/errores y rutas directas/recarga.
-- [ ] Modo demo explícito y consulta de permisos; rechazo cuando está deshabilitado.
-- [ ] Cambio de actor/contexto limpia cachés/borradores y peticiones pendientes.
-- [ ] Estados de carga/error accesibles, campos etiquetados y foco por teclado.
+- [x] Estructura React/TypeScript, lock, arranque/build y proxy loopback.
+- [x] Cliente HTTP con correlación/errores y rutas directas/recarga.
+- [x] Modo demo explícito y consulta de permisos; rechazo cuando está deshabilitado.
+- [x] Cambio de actor/contexto limpia cachés/borradores y peticiones pendientes.
+- [x] Estados de carga/error accesibles, campos etiquetados y foco por teclado.
 
 Aceptación: navegador conecta a API real, modo apagado rechaza rutas protegidas,
 actor no obtiene permisos por alterar UI y frontend no contiene credenciales.
+
+Entregados: `frontend/` React/TypeScript/Vite/router con lock, proxy dev/preview
+loopback, cliente HTTP, identidad/permisos, contexto cancelable y rutas protegidas.
+URL directa/recarga resuelve identificación/episodio básicos; buscador/listas/ficha
+ampliada y formularios permanecen en V2-04/05. Sin datos persistidos en navegador.
+Build con false/true excluye selector/actores/cabecera demo; 401/403 limpian/revalidan.
+16 pruebas de navegador sobre API/PostgreSQL y 316 backend pasan sin fallos/omisiones.
+[Guía de arranque](../docs/desarrollo-v2.md), [evidencia](../docs/evidencia-v2-03.md),
+[resultados](../docs/evidencia/v2-03-resultados.json),
+[verificador](../backend/scripts/verify_v2_03.py) y capturas escritorio/móvil.
+Node/paquetes fijados y Chromium instalado sólo localmente; sin cambios del sistema.
+Configuración/filas previas conservadas; procesos temporales cerrados.
+Corrección de test previo: ordenar consulta de auditoría por created_at/id; sin
+cambio de negocio backend. F04/F05 acreditan base de contextos/ciclo pageshow,
+sin afirmar restauración bfcache real ni formularios futuros. M2-02/03 pendientes.
+Commit previo solicitado: `6e2c926`; entrega V2-03 guardada en Git por solicitud del usuario.
 
 ### V2-04 — Búsqueda, ficha y episodios de lectura
 
@@ -411,10 +429,10 @@ ninguna casilla se marca por tener sólo un documento, endpoint o captura.
 
 ## Próximo paso
 
-La siguiente fase es **V2-03**, base frontend e identidad local,
+La siguiente fase es **V2-04**, búsqueda, ficha administrativa ampliada y episodios,
 sin pedir confirmación repetida para el alcance ya aprobado.
-M2-01 conserva revisión visual pendiente, sin bloquear la implementación aprobada.
-Backend V2-02A y V2-02B acreditados en [evidencia 02A](../docs/evidencia-v2-02a.md)
-y [evidencia 02B](../docs/evidencia-v2-02b.md).
-PostgreSQL permanece activo en loopback; APIs temporales cerradas, identidad apagada
-por defecto. POST V2/idempotencia comprobados; frontend pendiente, sin aceptación clínica.
+M2-01 conserva revisión visual humana pendiente. M2-02 se prepara al completar V2-04.
+V2-03 acreditada en [evidencia](../docs/evidencia-v2-03.md); arranque en
+[guía V2](../docs/desarrollo-v2.md). PostgreSQL sigue en loopback; procesos temporales
+cerrados e identidad backend apagada por defecto. Frontend base/POST V2/idempotencia
+comprobados; buscador/ficha completa/formularios pendientes, sin aceptación clínica.

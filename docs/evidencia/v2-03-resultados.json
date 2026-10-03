@@ -1,0 +1,142 @@
+{
+  "phase": "V2-03",
+  "date_utc": "2026-10-03T19:35:43.181178+00:00",
+  "lock_sha256": "686adce28b28dec765450cde828a02fbd98cc050d9162f8ebabd838de03b2663",
+  "npm_ci": true,
+  "typecheck": true,
+  "build_demo_false": true,
+  "build_demo_true": true,
+  "demo_selector_actor_headers_absent_from_build": true,
+  "credentials_absent_from_build": true,
+  "browser": {
+    "date_utc": "2026-10-03T19:35:51.858Z",
+    "total": 16,
+    "status": "passed",
+    "cases": [
+      {
+        "case": "B01 · navegador y proxy consultan identidad real PostgreSQL",
+        "status": "passed",
+        "duration_ms": 390
+      },
+      {
+        "case": "B02 · frontend-off rechaza acceso y protege el contexto",
+        "status": "passed",
+        "duration_ms": 203
+      },
+      {
+        "case": "B02 · backend-off rechaza acceso y protege el contexto",
+        "status": "passed",
+        "duration_ms": 211
+      },
+      {
+        "case": "B02 · build rechaza acceso y protege el contexto",
+        "status": "passed",
+        "duration_ms": 110
+      },
+      {
+        "case": "B03 · build incluso con bandera true excluye selector y actores",
+        "status": "passed",
+        "duration_ms": 2
+      },
+      {
+        "case": "B04 · URL directa y recarga resuelven paciente y episodio",
+        "status": "passed",
+        "duration_ms": 514
+      },
+      {
+        "case": "B05 · actor inactivo limpia datos y permiso no se obtiene alterando selector",
+        "status": "passed",
+        "duration_ms": 283
+      },
+      {
+        "case": "B06 · consulta-demo, cabecera de rol falsa y permisos de rutas",
+        "status": "passed",
+        "duration_ms": 390
+      },
+      {
+        "case": "B07 · respuesta real demorada se descarta al cambiar actor",
+        "status": "passed",
+        "duration_ms": 534
+      },
+      {
+        "case": "B07 · respuesta real demorada se descarta al cambiar patient",
+        "status": "passed",
+        "duration_ms": 248
+      },
+      {
+        "case": "B08 · error real tardío no reemplaza el contexto nuevo",
+        "status": "passed",
+        "duration_ms": 246
+      },
+      {
+        "case": "B09 · 404 limpia paciente previo, errores llevan correlación",
+        "status": "passed",
+        "duration_ms": 288
+      },
+      {
+        "case": "B10 · navegación atrás y ciclo pageshow revalidan identidad",
+        "status": "passed",
+        "duration_ms": 351
+      },
+      {
+        "case": "B11 · fallo de transporte recuperable, etiquetas, teclado y foco",
+        "status": "passed",
+        "duration_ms": 372
+      },
+      {
+        "case": "B12 · 401 real en consulta limpia contexto y revalida identidad",
+        "status": "passed",
+        "duration_ms": 633
+      },
+      {
+        "case": "B13 · 403 real en consulta limpia contexto y revalida permisos",
+        "status": "passed",
+        "duration_ms": 661
+      }
+    ],
+    "backend_database": "hospital_test",
+    "fixture_references": {
+      "patient_id": "404642f1-e1af-498b-b13e-7f57c9d6c2d1",
+      "second_patient_id": "2ad48a90-4b37-44e4-9472-5050f27ae10b",
+      "patient_folio": "PAC-000000002112",
+      "admission_id": "3f53d3ec-4164-42b4-b91d-2eca64ef4ecb",
+      "admission_folio": "EPI-000000000405",
+      "denied_actor": "v203-sin-permisos-c644b52fdd644c1485f087de5e3ffb67"
+    },
+    "services_stopped": true,
+    "frontend_modes": [
+      "demo",
+      "frontend-off",
+      "backend-off",
+      "build"
+    ]
+  },
+  "backend_pytest": {
+    "tests": 316,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "previous_rows_preserved": true,
+  "configuration_preserved": true,
+  "default_backend_identity_enabled": false,
+  "versions": {
+    "node_modules/@playwright/test": "1.63.0",
+    "node_modules/react": "19.3.0",
+    "node_modules/react-dom": "19.3.0",
+    "node_modules/react-router": "7.18.4",
+    "node_modules/typescript": "7.0.2",
+    "node_modules/vite": "8.3.2"
+  },
+  "acceptance": [
+    "V2-03",
+    "F01",
+    "F04 (base de contextos)",
+    "F05 (rutas/recarga/ciclo pageshow)"
+  ],
+  "limits": [
+    "Sin búsqueda/listas/ficha ampliada ni formularios V2-04/05",
+    "pageshow persisted comprobado con evento de ciclo; sin afirmar restauración bfcache real",
+    "Capturas/revisión técnica no sustituyen M2-01/02/03 ni aceptación clínica"
+  ]
+}

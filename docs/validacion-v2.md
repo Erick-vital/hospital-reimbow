@@ -1,9 +1,10 @@
 # Validación V2 — matriz y comandos
 
 Fecha: 2026-10-03. A01–A08 comprobados en V2-02A; I01–I13/A09/R01 en V2-02B.
-316 pruebas pasan y altas/replay/reinicios HTTP reales comprobados.
+316 pruebas backend pasan y altas/replay/reinicios HTTP reales comprobados.
+V2-03 añade 16 pruebas de navegador de identidad/contextos/rutas: [evidencia](evidencia-v2-03.md).
 [Evidencia 02A](evidencia-v2-02a.md), [evidencia 02B](evidencia-v2-02b.md) y
-[resultados vigentes](evidencia/v2-02b-resultados.json). Casos frontend pendientes.
+[resultados vigentes](evidencia/v2-02b-resultados.json). Recorrido de búsqueda/altas pendiente.
 Contrato: [revisión 2](contrato-v2.md) y [campos ampliados](campos-v2.md).
 Evidencia V1 conservada en [validación V1](validacion-v1.md).
 
@@ -34,7 +35,7 @@ de instalación desde cero. Migraciones de desarrollo se aplicarán sólo en su 
 conservando datos y configuración. Reinicio controlado del servicio del proyecto
 requiere coordinar ausencia de sesiones; conservar/restaurar servicio en `finally`.
 
-Contrato de scripts frontend a implementar en V2-03 (actualmente no existen):
+Scripts frontend V2-03 implementados; comandos desde `frontend/`:
 
 ```sh
 cd frontend
@@ -45,13 +46,13 @@ VITE_DEMO_IDENTITY=true npm run dev -- --host 127.0.0.1 --port 5173 --strictPort
 V2_API_PORT=8001 npm run test:e2e
 ```
 
-`test:e2e` deberá levantar frontend/API de pruebas o comprobar sus parámetros,
-rechazar una API hacia `hospital_dev` antes de escribir y cerrar procesos propios.
-`V2_API_PORT` es configuración prevista de scripts, no variable backend existente.
+`test:e2e` levanta frontend/API propios tras validar `hospital_test` y usuario
+separado antes de escribir fixtures; cierra sus procesos. `V2_API_PORT` fija el
+puerto local del proxy/API de pruebas propia; no es una variable backend.
 Proxy `/api` sin reescribir el prefijo, target loopback; build se prueba además con
 modo demo apagado. Vite preview no sustituye automáticamente el proxy de desarrollo:
-verificar configuración de preview explícita antes de probar el build contra API.
-Instalación de dependencias locales y navegador de pruebas pertenece a V2-03.
+V2-03 configura y prueba proxy de preview explícitamente.
+Dependencias locales y Chromium ya instalados/comprobados en V2-03.
 No usar `playwright install --with-deps` para modificar el sistema implícitamente.
 Desactivar traces/HAR/vídeos y logs de acceso; evidencias con datos exclusivamente ficticios.
 
@@ -118,6 +119,9 @@ del registro de prueba, sin cambiar el reloj del sistema ni esperar 24 horas.
 Cada resultado futuro indicará caso, versión, comando, conteos, resultado y límites.
 Esta matriz conserva la cobertura prevista; A01–A08 tienen evidencia de
 ejecución V2-02A; I01–I13, A09 y R01 pasan en
-[evidencia V2-02B](evidencia-v2-02b.md). Navegador pendiente. M2-01/02/03 no se consideran revisiones ejecutadas.
+[evidencia V2-02B](evidencia-v2-02b.md). Base navegador V2-03 comprobada: F01 y base F04/F05; escenarios completos
+de búsqueda/ficha/altas se completan en V2-04–06. M2-01/02/03 no se consideran revisiones ejecutadas.
 
 Validación vigente del backend: `backend/.venv/bin/python backend/scripts/verify_v2_02b.py`.
+
+Validación de base frontend vigente: `backend/.venv/bin/python backend/scripts/verify_v2_03.py`.
