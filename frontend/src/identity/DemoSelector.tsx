@@ -1,4 +1,6 @@
 const actors = [
+  ["medico-demo", "Médico · demo"],
+  ["enfermeria-demo", "Enfermería · demo"],
   ['admision-demo', 'Admisión · demo'],
   ['supervisor-demo', 'Supervisor · demo'],
   ['consulta-demo', 'Consulta · demo'],

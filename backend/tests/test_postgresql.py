@@ -51,7 +51,7 @@ def test_migration_idempotent_and_matches_models(database, monkeypatch):
         "patient_administrative_profiles", "patient_administrative_items", "patient_identity_verifications", "patient_verification_evidence", "admission_sites", "admission_services", "admission_intakes", "idempotency_records"
     }
     with database.engine.connect() as connection:
-        assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "0006"
+        assert connection.scalar(text("SELECT version_num FROM alembic_version")) == "0007"
 
 
 def test_ready_against_real_postgresql(database):

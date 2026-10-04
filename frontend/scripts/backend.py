@@ -13,7 +13,7 @@ from sqlalchemy.engine import make_url
 from hospital.core.config import Settings
 from hospital.core.database import Database
 from hospital.identity.models import User
-from hospital.identity.seed import ROLE_PERMISSIONS
+from hospital.identity.seed import ROLE_PERMISSIONS, seed_local_identity
 from hospital.authorization.service import Actor
 
 
@@ -32,8 +32,10 @@ def fixtures(settings):
     db = Database(settings)
     try:
         with db.sessions() as session:
+            seed_local_identity(session, settings)
+        with db.sessions() as session:
             assert session.scalar(text('SELECT current_database()'))=='hospital_test'
-            assert session.scalar(text('SELECT version_num FROM alembic_version'))=='0006'
+            assert session.scalar(text('SELECT version_num FROM alembic_version'))=='0007'
             user=session.scalar(select(User).where(User.actor_key=='supervisor-demo',User.status=='active'))
             assert user is not None
             actor=Actor(user.id,user.actor_key,ROLE_PERMISSIONS[user.actor_key])
@@ -60,7 +62,7 @@ def fixtures(settings):
             episode=create_admission_v2(session,actor=actor,request_id=uuid4(),data=AdmissionCreateV2(patient_id=patients[0]['id'],type='emergency',intake={
                 'admitted_at':{'state':'known','value':'2026-01-01T12:00:00+00:00'},
                 'origin':{'state':'unknown'},'reason_for_visit':{'state':'known','value':'Motivo ficticio 204'}}))
-        for _ in range(6):
+        for _ in range(5):
             with db.sessions() as session:
                 create_admission_v2(session,actor=actor,request_id=uuid4(),data=AdmissionCreateV2(patient_id=patients[0]['id'],type='emergency'))
         with db.sessions() as session:
@@ -74,8 +76,21 @@ def fixtures(settings):
             legacy_name='Persona ficticia anterior 204'
             search=search_patients(session,actor=actor,request_id=uuid4(),filters=SearchFilters(name=legacy_name))
             legacy=create_patient(session,actor=actor,request_id=uuid4(),data=PatientCreate(identity_status='verified',given_names=legacy_name,search_id=search['search_id']))
+        with db.sessions() as session:
+            clinical_second=create_admission_v2(session,actor=actor,request_id=uuid4(),data=AdmissionCreateV2(patient_id=patients[2]['id'],type='emergency'))
+        from hospital.administrative.models import Site, Service
+        with db.sessions() as session:
+            site = session.scalar(select(Site).where(Site.active.is_(True)))
+            service = session.scalar(select(Service).where(Service.site_id == site.id, Service.active.is_(True)))
+            site_id, service_id = site.id, service.id
+        with db.sessions() as session:
+            clinical_outpatient=create_admission_v2(session,actor=actor,request_id=uuid4(),data=AdmissionCreateV2(patient_id=patients[0]['id'],type='outpatient',intake={
+                'admitted_at':{'state':'known','value':'2026-01-02T12:00:00Z'},
+                'site_id':{'state':'known','value':site_id},'service_id':{'state':'known','value':service_id}}))
         # Sólo referencias ficticias para pruebas; sin cuerpos ni configuración.
         print(json.dumps({'patient_id':str(patients[0]['id']),'second_patient_id':str(patients[1]['id']),
+                          'clinical_second_patient_id':str(patients[2]['id']),'clinical_second_episode_id':str(clinical_second['id']),'clinical_second_patient_folio':patients[2]['folio'],
+                          'clinical_outpatient_id':str(clinical_outpatient['id']),'clinical_site_id':str(site_id),'clinical_service_id':str(service_id),
                           'patient_folio':patients[0]['folio'],'admission_id':str(episode['id']),
                           'admission_folio':episode['folio'],'denied_actor':denied_key, 'test_identifier':test_identifier,
                           'unknown_id':str(unknown['id']),'unknown_folio':unknown['folio'],'legacy_id':str(legacy['id'])}))

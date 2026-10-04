@@ -12,6 +12,7 @@ from hospital.audit.routes import router as audit_router
 from hospital.patients.routes import router as patients_router
 from hospital.admissions.routes import router as admissions_router
 from hospital.administrative.routes import router as administrative_router
+from hospital.clinical.routes import router as clinical_router
 
 
 def create_app(settings: Settings | None = None) -> FastAPI:
@@ -50,4 +51,5 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(patients_router, prefix="/api/v1")
     app.include_router(admissions_router, prefix="/api/v1")
     app.include_router(administrative_router, prefix="/api/v2")
+    app.include_router(clinical_router, prefix="/api/v3/clinical")
     return app

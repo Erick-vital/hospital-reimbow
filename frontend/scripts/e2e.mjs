@@ -85,7 +85,7 @@ try {
     await ready(url, server)
     urls[mode.name] = url
   }
-  const runner = run(process.execPath, [resolve(frontend, 'node_modules/@playwright/test/cli.js'), 'test'], {
+  const runner = run(process.execPath, [resolve(frontend, 'node_modules/@playwright/test/cli.js'), 'test', ...process.argv.slice(2)], {
     V2_E2E_MANAGED: 'true', V2_E2E_URLS: JSON.stringify(urls), V2_E2E_FIXTURES: JSON.stringify(fixture),
     PLAYWRIGHT_BROWSERS_PATH: resolve(frontend, '.cache/ms-playwright'),
   })
@@ -135,15 +135,14 @@ try {
       const destination = resolve(root, 'docs/evidencia')
       mkdirSync(destination, { recursive: true })
       await page.goto(urls.demo + '/patients/new')
-      await page.getByLabel('Nombres: disponibilidad', { exact: true }).selectOption('known')
       await page.getByLabel('Nombres', { exact: true }).fill('Persona ficticia de captura V205')
-      await page.getByLabel('Nacionalidad: disponibilidad').selectOption('unknown')
+      await page.getByLabel('Nacionalidad: razón de ausencia').selectOption('unknown')
       await page.evaluate(() => { window.scrollTo(0, 0) })
       await page.waitForTimeout(100)
       await page.screenshot({ path: resolve(destination, 'v2-05-registro.png'), fullPage: true })
       await page.setViewportSize({ width: 390, height: 844 })
+      page.once('dialog', dialog => dialog.accept())
       await page.getByLabel('Tipo de identidad').selectOption('unknown')
-      await page.getByLabel('Edad estimada: disponibilidad').selectOption('known')
       await page.getByLabel('Edad mínima estimada').fill('30')
       await page.getByLabel('Edad máxima estimada').fill('40')
       await page.evaluate(() => { window.scrollTo(0, 0) })
@@ -164,6 +163,25 @@ try {
       await page.evaluate(() => { window.scrollTo(0, 0) })
       await page.waitForTimeout(100)
       await page.screenshot({ path: resolve(destination, 'v2-05-auditoria.png'), fullPage: true })
+    } finally { await browser.close() }
+  }
+  if (process.env.V3_CAPTURE_CONTEXT === 'true') {
+    const { chromium } = await import('@playwright/test')
+    const browser = await chromium.launch({ headless: true })
+    try {
+      const page = await browser.newPage({ viewport: { width: 1440, height: 960 } })
+      const destination = resolve(root, 'docs/evidencia')
+      mkdirSync(destination, { recursive: true })
+      await page.goto(urls.demo + '/clinical/attentions')
+      await page.getByLabel('Actor de demostración', { exact: true }).selectOption('medico-demo')
+      await page.getByRole('list', { name: 'Atenciones abiertas' }).waitFor()
+      await page.screenshot({ path: resolve(destination, 'v3-03-atenciones-desktop.png'), fullPage: true })
+      await page.evaluate(id => { history.pushState(null, '', '/clinical/attentions/' + id); dispatchEvent(new PopStateEvent('popstate')) }, fixture.admission_id)
+      await page.getByRole('region', { name: 'Contexto clínico actual' }).waitFor()
+      await page.screenshot({ path: resolve(destination, 'v3-03-contexto-desktop.png'), fullPage: true })
+      await page.setViewportSize({ width: 390, height: 844 })
+      await page.evaluate(() => scrollTo(0, 0))
+      await page.screenshot({ path: resolve(destination, 'v3-03-contexto-mobile.png'), fullPage: true })
     } finally { await browser.close() }
   }
   await stop()

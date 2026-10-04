@@ -170,14 +170,18 @@ sin modificar ni duplicar los documentos fuente:
 | Correcciones con historial y permisos | [Admisión §26](requerimientos/1.%20ADMISION.md#26-corrección-de-datos) y [Pacientes §37](requerimientos/2.%20PACIENTE.md#37-auditoría) | Motivo, antes/después, autor/fecha y autorización adicional para cambios críticos; protección contra sobrescritura concurrente y reevaluación de la evidencia afectada. |
 | Historia comprensible de identidad | [Pacientes §7/37](requerimientos/2.%20PACIENTE.md#37-auditoría) | Vista de procedencia, verificaciones y cambios con permisos. La pantalla concreta es propuesta de diseño; los originales exigen los registros/auditoría, no esta interfaz específica. |
 
-### 8.2 Recomendación de ampliación funcional para V3 — por decidir
+### 8.2 Expediente clínico básico V3 — diseño base
 
 Después de cerrar V2-06, se recomienda un **expediente clínico básico** que permita
 el recorrido paciente → episodio → signos vitales/alergias → nota médica en borrador
 → consulta compartida autorizada. Esta recomendación responde a la prioridad de
-ampliar el MVP; se concreta en el [plan V3 preparado](../plans/v3-expediente-basico.md),
-solicitado el 2026-10-03. Su preparación no autoriza implementación; contrato, roles
-y revisión de formularios siguen pendientes.
+ampliar el MVP; se concreta en el [plan V3](../plans/v3-expediente-basico.md),
+solicitado el 2026-10-03. V3-01 fue autorizada y después cerrada explícitamente
+por el usuario, con [contrato/diseño base](contrato-v3.md). La inspección visual
+se aplazó hasta disponer de funcionalidad al final de V3; no consta aceptación
+funcional realizada. Posteriormente V3-02 y V3-03 fueron autorizadas e
+implementadas con cierre técnico; [evidencia V3-03](evidencia-v3-03.md).
+V3-04–07 siguen sin iniciar.
 
 | Bloque sugerido | Funcionalidad visible | Fundamento y límite inicial |
 |---|---|---|

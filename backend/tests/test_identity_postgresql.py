@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from hospital.authorization.models import Permission, Role, RolePermission, UserRole
 from hospital.authorization.projections import PATIENT_BASIC, PATIENT_DEMOGRAPHICS, patient_projection
-from hospital.authorization.service import OPERATION_PERMISSIONS
+from hospital.authorization.service import OPERATION_PERMISSIONS, PERMISSIONS
 from hospital.core.config import Settings
 from hospital.core.database import Database
 from hospital.identity.dependencies import permitted
@@ -82,7 +82,7 @@ def test_actor_effective_permissions_and_all_operations(sessions, key):
             if expected == 403:
                 assert result.json()["error"]["code"] == "PERMISSION_DENIED"
         projected = client.get("/projection", headers=headers).json()
-        expected_fields = PATIENT_BASIC + (PATIENT_DEMOGRAPHICS if key != "consulta-demo" else ())
+        expected_fields = PATIENT_BASIC + (PATIENT_DEMOGRAPHICS if "patients.read_demographics" in ROLE_PERMISSIONS[key] else ())
         assert set(projected) == set(expected_fields)
 
 
@@ -119,7 +119,7 @@ def test_seed_idempotent_preserves_ids_suspensions_and_unrelated_rows(sessions):
         unrelated_id = unrelated.id
     for _ in range(2):
         with sessions() as session:
-            assert seed_local_identity(session, settings) == {"actors": 4, "roles": 3, "permissions": 9}
+            assert seed_local_identity(session, settings) == {"actors": len(ACTOR_ROLES), "roles": len(ROLE_PERMISSIONS), "permissions": len(PERMISSIONS)}
     with sessions() as session:
         assert before == {u.actor_key: u.id for u in session.scalars(select(User).where(User.actor_key.in_(ACTOR_ROLES)))}
         assert session.scalar(select(User.status).where(User.actor_key == "admision-demo")) == "inactive"

@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reimbow HIS · Revisión M3-01</title>
+  <style>
+    :root{font:16px/1.5 system-ui,sans-serif;color:#18353d;background:#edf3f4}
+    *{box-sizing:border-box}body{margin:0}header{background:#173e48;color:white;padding:24px max(20px,calc((100vw - 1120px)/2))}
+    h1{font-size:25px;margin:0}h2{font-size:26px;margin:0 0 16px}h3{font-size:20px;margin:24px 0 12px}
+    main{max-width:1120px;margin:auto;padding:24px}nav,.row,.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    nav{margin-top:20px}.card{background:white;border:1px solid #cbdade;border-radius:10px;padding:24px;margin:18px 0}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}.notice{padding:14px 18px;background:#fff0d5;border-left:4px solid #b57b1f;margin:16px 0}
+    .muted,small{color:#4c646b}label{display:block;font-weight:600}input,select,textarea{display:block;font:inherit;width:100%;min-width:0;padding:10px;border:1px solid #7e949b;border-radius:5px;margin:6px 0}
+    textarea{min-height:100px;resize:vertical}button,a.button{font:inherit;background:#126779;border:1px solid #126779;border-radius:6px;color:white;padding:10px 16px;cursor:pointer;text-decoration:none}
+    button.secondary{background:white;color:#155768}button:disabled{opacity:.6;cursor:default}header select{max-width:260px}a{color:#075e73}
+    :focus-visible{outline:3px solid #af5c00;outline-offset:4px}.actions{margin-top:18px}fieldset{border:1px solid #bfd1d7;border-radius:6px;padding:16px;margin:16px 0}legend{font-weight:700}
+    .absence{font-size:14px;margin-top:6px}.absence select{font-size:14px}.patient{position:sticky;top:0;z-index:2;background:#d9edf1;border-left:5px solid #146779;padding:16px;margin:16px 0;box-shadow:0 2px 5px #163b431a}
+    .tag{background:#e7eef1;color:#204652;border-radius:16px;padding:4px 10px;font-size:14px}.table{overflow:auto}table{width:100%;border-collapse:collapse;text-align:left}th,td{padding:12px 10px;border-bottom:1px solid #d6e1e5;vertical-align:top}
+    .error{color:#9b2424}.summary{white-space:pre-wrap;background:#edf5f6;padding:18px;border-radius:6px;overflow-wrap:anywhere}.readonly{background:#edf3f4}
+    svg{max-width:100%;height:auto}.chart{padding:16px;border:1px solid #cfdee1;border-radius:6px}footer{max-width:1120px;margin:auto;padding:24px;color:#4c646b}[hidden]{display:none!important}
+    @media(max-width:600px){header,main{padding:14px}.card{padding:16px}h2{font-size:22px}.patient{font-size:14px;padding:12px}.grid{grid-template-columns:1fr}nav button{padding:8px 10px}}
+  </style>
+</head>
+<body>
+<header>
+  <h1>Reimbow HIS <span class="tag">V3 · M3-01</span></h1>
+  <p>Formularios directos y expediente básico · Datos ficticios</p>
+  <label for="actor">Actor simulado para revisar el boceto</label>
+  <select id="actor"><option>admision-demo</option><option>supervisor-demo</option><option>medico-demo</option><option>enfermeria-demo</option><option>consulta-demo</option></select>
+  <nav aria-label="Pantallas del boceto">
+    <button data-view="patient">Paciente nuevo</button><button data-view="intake">Ingreso</button>
+    <button data-view="attentions">Atenciones</button><button data-view="context">Contexto</button>
+    <button data-view="vitals">Signos vitales</button><button data-view="allergies">Alergias</button>
+    <button data-view="note">Nota en borrador</button><button data-view="longitudinal">Longitudinal</button>
+  </nav>
+</header>
+<main>
+  <div class="notice">Boceto para revisión: navegación y guardado simulados sólo en memoria; al recargar se descartan.
+    <a href="contrato-v3.md">Contrato propuesto</a> · <a href="evidencia-v3-01.md">Guion M3-01</a>.
+    La aplicación V2 conserva su diseño hasta resolver esta revisión.</div>
+  <p id="status" role="status" aria-live="polite"></p>
+  <div id="banner" class="patient" hidden></div>
+
+  <section id="denied" class="card" hidden><h2 tabindex="-1">Acceso no disponible</h2><p>El actor simulado carece de permisos para esta pantalla. Cambiar actor descarta los formularios del contexto anterior.</p></section>
+
+  <section id="patient" class="card">
+    <h2 tabindex="-1">Registrar paciente</h2>
+    <p>Escribe directamente los datos disponibles. Un dato vacío conserva su razón de ausencia.</p>
+    <label for="unidentified">Identidad</label><select id="unidentified"><option value="no">Parcialmente identificada o identificada</option><option value="yes">Identidad desconocida</option></select>
+    <div id="identity-fields" class="grid"></div>
+    <div id="identifiers"></div>
+    <div id="unknown-fields" hidden><h3>Descripción del desconocido</h3><p>Datos opcionales. Una edad estimada no es una fecha de nacimiento.</p><div id="descriptors" class="grid"></div></div>
+    <h3>Perfil administrativo</h3><div id="profile" class="grid"></div>
+    <div id="phones"></div><div id="addresses"></div><div id="contacts"></div>
+    <h3>Verificación separada</h3>
+    <p id="provisional">Se registra provisional. Escribir valores no verifica la identidad.</p>
+    <div id="verification" hidden><label for="verified">Estado declarado</label><select id="verified"><option value="no">Provisional</option><option value="yes">Verificación documentada</option></select>
+      <div id="evidence" hidden><p>Contrastar nombre más nacimiento o CURP. TEST no acredita identidad.</p><div class="grid">
+        <div><label for="second-id">Segundo identificador contrastado</label><select id="second-id"><option value="birth_date">Nacimiento</option><option value="CURP">CURP</option></select></div>
+        <div><label for="source-kind">Fuente de ambos identificadores</label><select id="source-kind"><option value="official_document">Documento oficial ficticio</option><option value="institutional_document">Documento institucional ficticio</option></select></div>
+        <div><label for="source-reference">Referencia descriptiva ficticia</label><input id="source-reference" maxlength="200" autocomplete="off"></div>
+      </div></div>
+    </div>
+    <div class="notice">La búsqueda previa y la confirmación se conservan. Después de recargar o perder una respuesta, consulta y reconcilia antes de crear otra alta.</div>
+    <div class="actions"><button id="search-patient" class="secondary">Simular búsqueda previa</button><button id="review-patient">Revisar alta</button></div>
+    <p id="patient-error" class="error" role="alert"></p>
+    <div id="patient-review" hidden><h3>Confirmación de datos y ausencias</h3><div id="patient-summary" class="summary"></div><button id="confirm-patient">Confirmar alta simulada</button></div>
+  </section>
+
+  <section id="intake" class="card" hidden>
+    <h2 tabindex="-1">Abrir episodio</h2>
+    <div class="patient">Persona Alfa Ficticia · PAC-000000000301 · Provisional</div>
+    <label for="intake-type">Tipo de atención</label><select id="intake-type"><option value="emergency">Urgencias</option><option value="outpatient">Consulta externa</option><option value="inpatient">Hospitalización</option></select>
+    <div id="intake-fields" class="grid"></div>
+    <button id="now" class="secondary">Usar hora actual para el ingreso</button>
+    <p class="muted">Zona local del navegador: <span id="zone"></span>. Revisa la hora; el campo no se rellena automáticamente.</p>
+    <p id="intake-policy" class="notice"></p>
+    <div class="actions"><button id="review-intake">Revisar apertura</button></div><p id="intake-error" role="alert" class="error"></p>
+    <div id="intake-review" hidden><h3>Confirmar paciente y atención</h3><div id="intake-summary" class="summary"></div>
+      <div class="actions"><button id="confirm-intake">Confirmar apertura simulada</button><button id="lost-intake" class="secondary">Simular respuesta perdida</button></div>
+    </div>
+    <div id="uncertain" hidden class="notice"><h3>Resultado pendiente de confirmar</h3><p>El servidor pudo registrar el episodio. Datos congelados hasta confirmar el mismo intento.</p><button id="retry-intake">Reintentar el mismo registro simulado</button></div>
+  </section>
+
+  <section id="attentions" class="card" hidden>
+    <h2 tabindex="-1">Atenciones abiertas</h2><p>Acceso clínico demo global a datos ficticios. Sin asignaciones ni listado de «mis pacientes».</p>
+    <div class="grid">
+      <div><label for="filter-type">Tipo</label><select id="filter-type"><option value="">Todos</option><option value="emergency">Urgencias</option><option value="outpatient">Consulta externa</option><option value="inpatient">Hospitalización</option></select></div>
+      <div><label for="filter-site">Sede</label><select id="filter-site"><option value="">Todas, incluidas pendientes</option><option value="demo">Sede ficticia</option></select></div>
+      <div><label for="filter-service">Servicio</label><select id="filter-service" disabled><option value="">Todos</option><option value="demo">Servicio ficticio</option></select></div>
+    </div>
+    <div class="table"><table><thead><tr><th>Paciente / PAC</th><th>Episodio / tipo</th><th>Ingreso / sede / servicio</th><th>Acción</th></tr></thead><tbody id="attention-rows"></tbody></table></div>
+    <p id="page-count"></p><div class="actions"><button disabled>Anterior</button><button disabled>Siguiente</button></div>
+  </section>
+
+  <section id="context" class="card" hidden>
+    <h2 tabindex="-1">Contexto de la atención</h2>
+    <h3>Alergias del paciente</h3><p class="allergy-summary"></p><button data-view="allergies" class="secondary">Consultar alergias</button>
+    <h3>Último registro de esta atención</h3><p id="last-vitals"></p><button data-view="vitals" class="secondary">Consultar y registrar signos</button>
+    <h3>Notas de esta atención</h3><p id="last-note"></p><button data-view="note" class="secondary">Consultar borrador</button>
+    <div class="actions"><button data-view="longitudinal" class="secondary">Ver datos longitudinales</button><button data-view="attentions" class="secondary">Volver a atenciones</button></div>
+  </section>
+
+  <section id="vitals" class="card" hidden>
+    <h2 tabindex="-1">Signos vitales de esta atención</h2>
+    <div id="vitals-history"></div>
+    <div id="trend" class="chart" hidden><h3>Temperatura · °C · mismo episodio</h3>
+      <svg viewBox="0 0 480 140" role="img" aria-label="Ejemplo ficticio de temperatura: 36.5 a las 09:00 y 36.7 a las 10:00 del 3 de octubre de 2026; no indica umbrales clínicos">
+        <path d="M50 10V110H460" stroke="#78939b" fill="none"/><path d="M120 85L330 55" stroke="#146779" stroke-width="3"/>
+        <circle cx="120" cy="85" r="5" fill="#146779"/><circle cx="330" cy="55" r="5" fill="#146779"/>
+        <text x="100" y="70">36.5 °C</text><text x="300" y="40">36.7 °C</text><text x="95" y="133">09:00</text><text x="300" y="133">10:00</text>
+      </svg><p>Ejemplo de evolución; 2026-10-03, UTC−06:00. Detalle con autor y contexto. Sin clasificación de normalidad.</p>
+    </div>
+    <h3>Nuevo registro</h3><label for="measured-at">Fecha y hora de la medición</label><input id="measured-at" type="datetime-local"><p class="muted">Zona: <span class="local-zone"></span>. Obligatoria; distinta de la fecha de captura.</p>
+    <div id="measurements" class="grid"></div>
+    <fieldset id="bp-context" hidden><legend>Contexto de presión arterial</legend><div class="grid">
+      <div><label for="position">Posición</label><select id="position"><option value="">Selecciona contexto</option><option>Sentado</option><option>Supino</option><option>De pie</option><option>Desconocido</option><option>No registrado</option></select></div>
+      <div><label for="arm">Brazo</label><select id="arm"><option value="">Selecciona contexto</option><option>Izquierdo</option><option>Derecho</option><option>Otro</option><option>Desconocido</option><option>No registrado</option></select></div>
+    </div></fieldset>
+    <fieldset id="temp-context" hidden><legend>Contexto de temperatura</legend><label for="temperature-site">Sitio</label><select id="temperature-site"><option value="">Selecciona contexto</option><option>Axilar</option><option>Oral</option><option>Timpánica</option><option>Rectal</option><option>Otro</option><option>Desconocido</option><option>No registrado</option></select></fieldset>
+    <fieldset id="oxygen-context" hidden><legend>Contexto de SpO₂</legend><label for="oxygen">Oxígeno al medir</label><select id="oxygen"><option value="">Selecciona contexto</option><option value="room_air">Aire ambiente</option><option value="supplemental">Oxígeno suplementario</option><option value="unknown">Desconocido</option><option value="not_recorded">No registrado</option></select>
+      <div id="oxygen-details" hidden class="grid"><div><label for="oxygen-device">Dispositivo</label><input id="oxygen-device" maxlength="100"></div><div id="oxygen-flow"></div></div>
+    </fieldset>
+    <div class="grid"><div><label for="method">Método, opcional</label><input id="method" maxlength="100"></div><div><label for="measurement-device">Equipo de medición, opcional</label><input id="measurement-device" maxlength="100"></div></div>
+    <label for="vitals-observation">Observación, opcional</label><textarea id="vitals-observation" maxlength="1000"></textarea>
+    <p>No medido es vacío; no es cero. Sin alertas, diagnósticos ni administración de oxígeno.</p>
+    <button id="save-vitals">Simular guardar registro</button><p id="vitals-error" class="error" role="alert"></p>
+  </section>
+
+  <section id="allergies" class="card" hidden>
+    <h2 tabindex="-1">Alergias del paciente · longitudinal</h2><p class="allergy-summary"></p>
+    <p>Alergias referidas · sin verificación clínica implementada. Compartidas entre sus episodios.</p>
+    <label for="allergy-state">Nueva declaración</label><select id="allergy-state"><option value="">Selecciona explícitamente</option><option value="unknown">Alergias desconocidas</option><option value="no_known_allergies">Sin alergias conocidas, según fuente</option><option value="recorded">Alergias registradas</option></select>
+    <label for="reviewed-at">Fecha y hora de la revisión</label><input id="reviewed-at" type="datetime-local"><p class="muted">Zona: <span class="local-zone"></span>.</p>
+    <div class="grid"><div><label for="allergy-source">Fuente de la declaración</label><select id="allergy-source"><option value="">Selecciona fuente</option><option value="patient">Paciente</option><option value="family">Familiar</option><option value="document">Documento</option><option value="clinical_staff">Personal clínico</option><option value="unknown">Desconocida</option></select></div>
+      <div><label for="allergy-reference">Referencia ficticia (obligatoria para documento/personal)</label><input id="allergy-reference" maxlength="200"></div></div>
+    <fieldset id="allergy-item" hidden><legend>Alergia referida · ejemplo de un elemento</legend><label for="substance">Sustancia</label><input id="substance" maxlength="200"><div id="reaction-field"></div>
+      <label for="item-source">Fuente de este elemento</label><select id="item-source"><option value="">Selecciona fuente</option><option value="patient">Paciente</option><option value="family">Familiar</option><option value="document">Documento</option><option value="clinical_staff">Personal clínico</option><option value="unknown">Desconocida</option></select>
+      <label for="item-reference">Referencia ficticia del elemento</label><input id="item-reference" maxlength="200"><label for="allergy-observation">Observación, opcional</label><textarea id="allergy-observation" maxlength="1000"></textarea>
+    </fieldset>
+    <p class="muted">El boceto muestra un elemento. El contrato propone hasta 20, con confirmación de retirada y sin borrar versiones.</p>
+    <label for="allergy-reason">Motivo de la nueva declaración</label><input id="allergy-reason" maxlength="500">
+    <div class="actions"><button id="save-allergy">Simular registrar revisión</button><button id="allergy-conflict" class="secondary">Simular conflicto de versión</button><button id="allergy-versions" class="secondary">Consultar versiones ficticias</button></div>
+    <p id="allergy-error" class="error" role="alert"></p><div id="allergy-history" class="summary" hidden></div>
+  </section>
+
+  <section id="note" class="card" hidden>
+    <h2 tabindex="-1">Nota médica inicial</h2><p class="tag">Borrador no firmado · Plantilla initial_note, versión 1</p>
+    <p id="note-meta"></p><p id="note-role" class="notice"></p>
+    <label for="clinical-at">Fecha y hora clínica</label><input id="clinical-at" type="datetime-local"><p class="muted">Zona: <span class="local-zone"></span>. No se copia información de otro registro.</p>
+    <div id="note-fields"></div>
+    <label for="note-change-reason">Motivo al guardar nueva versión</label><input id="note-change-reason" maxlength="500">
+    <p>Borrador parcial: al menos una sección escrita, máximo 4000 caracteres por sección. El plan narrativo no activa órdenes ni diagnósticos.</p>
+    <div class="actions"><button id="save-note">Simular guardar borrador</button><button id="note-conflict" class="secondary">Simular conflicto de versión</button><button id="note-versions" class="secondary">Consultar versiones ficticias</button></div>
+    <p id="note-error" class="error" role="alert"></p><div id="note-history" class="summary" hidden></div>
+  </section>
+
+  <section id="longitudinal" class="card" hidden>
+    <h2 tabindex="-1">Información longitudinal del paciente</h2><p>Sin episodio seleccionado. Signos y borradores agrupados por atención; las alergias pertenecen al paciente.</p>
+    <h3>Alergias compartidas</h3><p class="allergy-summary"></p><h3>Atenciones del paciente</h3><div id="longitudinal-items"></div>
+    <button data-view="attentions" class="secondary">Volver a atenciones abiertas</button>
+  </section>
+</main>
+<footer>Revisión D01–D06 · No conectado a API/PostgreSQL. Las simulaciones de permisos, conflictos y guardado no acreditan su implementación.</footer>
+<script>
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const adminFields = new Map();
+  const reasons = {unknown:'Desconocido',not_provided:'No proporcionado',not_applicable:'No aplica',not_recorded:'No registrado'};
+  const encounters = [
+    {id:'401',pac:'301',name:'Persona Alfa Ficticia',type:'emergency',label:'Urgencias',site:false,admitted:'Ingreso: no proporcionado',vitals:true,note:true,allergy:'No documentado'},
+    {id:'402',pac:'301',name:'Persona Alfa Ficticia',type:'outpatient',label:'Consulta externa',site:true,admitted:'2026-10-03 08:00 UTC−06:00',vitals:false,note:false,allergy:'No documentado'},
+    {id:'403',pac:'302',name:'Persona Beta Ficticia',type:'inpatient',label:'Hospitalización',site:true,admitted:'2026-10-02 16:00 UTC−06:00',vitals:false,note:false,allergy:'Desconocido'}
+  ];
+  let current = encounters[0], view = 'patient', searched = false, frozen = false, noteVersion = 1;
+  const announce = text => { $('status').textContent = text; };
+  const isClinical = () => ['medico-demo','enfermeria-demo'].includes($('actor').value);
+  const isAdmin = () => ['admision-demo','supervisor-demo'].includes($('actor').value);
+  const label = (id,text) => { const el=document.createElement('label');el.htmlFor=id;el.textContent=text;return el; };
+  function valueField(container,id,text,{type='text',max=200,absences=['unknown','not_provided'],options=null}={}) {
+    const wrap=document.createElement('div');wrap.append(label(id,text));
+    const input=document.createElement(options?'select':'input');input.id=id;
+    if(options){input.add(new Option('Selecciona un valor',''));options.forEach(([v,t])=>input.add(new Option(t,v)));}
+    else {input.type=type;input.maxLength=max;input.autocomplete='off';}
+    const missing=document.createElement('div');missing.className='absence';missing.append(label(id+'-absence','Si falta: razón de ausencia'));
+    const select=document.createElement('select');select.id=id+'-absence';absences.forEach(v=>select.add(new Option(reasons[v],v)));select.value=absences.includes('not_provided')?'not_provided':absences[0];
+    missing.append(select);wrap.append(input,missing);container.append(wrap);
+    const sync=()=>{missing.hidden=!!input.value.trim();$('patient-review').hidden=true;$('intake-review').hidden=true;searched=false;};
+    input.addEventListener('input',sync);select.addEventListener('change',sync);
+    adminFields.set(id,{input,select,missing,text});return input;
+  }
+  function readField(id){const f=adminFields.get(id);return f.input.value.trim()||reasons[f.select.value];}
+  function fields(container,defs){defs.forEach(([id,text,opts])=>valueField($(container),id,text,opts));}
+  fields('identity-fields',[
+    ['names','Nombre(s)',{max:100}],['family','Primer apellido',{max:100}],['second','Segundo apellido',{max:100,absences:['unknown','not_provided','not_applicable']}],['birth','Nacimiento',{type:'date'}]
+  ]);
+  fields('profile',[['sex','Sexo registrado',{max:100}],['nationality','Nacionalidad',{max:100}]]);
+  fields('descriptors',[
+    ['apparent-sex','Sexo aparente',{max:100}],['age-min','Edad estimada mínima (años)',{type:'number'}],['age-max','Edad estimada máxima (años)',{type:'number'}],
+    ['features','Características de identificación',{max:1000}],['origin-description','Procedencia conocida',{max:200}],['transfer','Traslado por',{max:200}]
+  ]);
+  adminFields.get('age-max').missing.remove();
+  const syncAge=()=>{adminFields.get('age-min').missing.hidden=!!($('age-min').value||$('age-max').value);};
+  ['age-min','age-max'].forEach(id=>$(id).addEventListener('input',syncAge));
+  function collection(id,title,kind){
+    const root=$(id);const heading=document.createElement('h3');heading.textContent=title;root.append(heading);
+    const rows=document.createElement('div');root.append(rows);const missing=document.createElement('div');missing.className='absence';
+    const selector=document.createElement('select');selector.id=id+'-absence';missing.append(label(selector.id,'Si no hay elementos: razón de ausencia'));
+    ['not_provided','unknown'].forEach(v=>selector.add(new Option(reasons[v],v)));missing.append(selector);root.append(missing);
+    const none=document.createElement('p');none.textContent='Ninguno declarado explícitamente';none.hidden=true;root.append(none);
+    const actions=document.createElement('div');actions.className='actions';root.append(actions);
+    const add=document.createElement('button');add.textContent='Añadir '+kind;add.className='secondary';
+    const noItems=document.createElement('button');noItems.textContent='Ninguno declarado';noItems.className='secondary';actions.append(add,noItems);
+    let seq=0;
+    const refresh=()=>{missing.hidden=rows.children.length>0||!none.hidden;add.disabled=rows.children.length>=10;$('patient-review').hidden=true;searched=false;};
+    noItems.onclick=()=>{if(rows.children.length&&!confirm('¿Descartar los elementos escritos del borrador?'))return;rows.replaceChildren();none.hidden=false;refresh();};
+    selector.onchange=refresh;
+    add.onclick=()=>{
+      none.hidden=true;const box=document.createElement('fieldset');const legend=document.createElement('legend');legend.textContent=kind+' '+(++seq);box.append(legend);rows.append(box);
+      const make=(suffix,text,type='text',max=200)=>{const key=id+'-'+seq+'-'+suffix;box.append(label(key,text));const input=document.createElement('input');input.id=key;input.type=type;input.maxLength=max;input.dataset.required='true';input.autocomplete='off';box.append(input);return input;};
+      const choice=(suffix,text,items)=>{const key=id+'-'+seq+'-'+suffix;box.append(label(key,text));const select=document.createElement('select');select.id=key;items.forEach(t=>select.add(new Option(t,t)));box.append(select);};
+      if(id==='phones'){choice('kind','Tipo de teléfono',['Personal','Fijo','Laboral','Otro']);make('number','Número (con prefijo o extensión)','text',40);}
+      if(id==='contacts'){make('name','Nombre del contacto');valueField(box,id+'-'+seq+'-relationship','Relación',{max:100,absences:['unknown','not_provided','not_applicable']});valueField(box,id+'-'+seq+'-phone','Teléfono del contacto',{max:40,absences:['unknown','not_provided','not_applicable']});}
+      if(id==='addresses'){choice('kind','Tipo de domicilio',['Principal','Temporal','Fiscal','Correspondencia','Otro']);['Calle','Exterior','Interior','Colonia','Código postal','Municipio','Estado','País','Referencias'].forEach((text,i)=>{const el=make('component-'+i,text,'text',i===4?20:i===8?500:200);delete el.dataset.required;el.dataset.address='true';});}
+      const remove=document.createElement('button');remove.textContent='Quitar '+kind;remove.className='secondary';remove.onclick=()=>{if([...box.querySelectorAll('input')].some(i=>i.value)&&!confirm('¿Quitar este elemento del borrador?'))return;box.remove();refresh();};box.append(remove);refresh();
+    };
+    root.summary=()=>rows.children.length?title+': '+[...rows.children].map(box=>[...box.querySelectorAll('input,select')].filter(i=>!i.id.endsWith('-absence')).map(i=>adminFields.has(i.id)?readField(i.id):i.value||'Sin componente').join(' · ')).join('\n'):title+': '+(!none.hidden?'Ninguno declarado':reasons[selector.value]);
+  }
+  collection('phones','Teléfonos','teléfono');collection('addresses','Domicilios','domicilio');collection('contacts','Contactos de emergencia','contacto');
+  const idButton=document.createElement('button');idButton.textContent='Añadir identificador';idButton.className='secondary';$('identifiers').append(idButton);let idSeq=0;
+  idButton.onclick=()=>{const count=$('identifiers').querySelectorAll('fieldset').length;if(count>=10)return;
+    const box=document.createElement('fieldset'),key='identifier-'+(++idSeq);const legend=document.createElement('legend');legend.textContent='Identificador '+idSeq;box.append(legend,label(key+'-system','Sistema'));
+    const system=document.createElement('select');system.id=key+'-system';['CURP','TEST'].forEach(t=>system.add(new Option(t,t)));box.append(system,label(key,'Valor'));
+    const value=document.createElement('input');value.id=key;value.maxLength=64;value.dataset.required='true';value.autocomplete='off';box.append(value);const remove=document.createElement('button');remove.textContent='Quitar identificador';remove.className='secondary';remove.onclick=()=>{box.remove();searched=false;$('patient-review').hidden=true;};box.append(remove);$('identifiers').append(box);searched=false;};
+  fields('intake-fields',[
+    ['admitted','Fecha y hora efectiva de ingreso',{type:'datetime-local'}],['site','Sede',{options:[['demo','Sede ficticia']]}],['service','Servicio',{options:[['demo','Servicio ficticio']]}],['intake-origin','Procedencia',{max:200}],['intake-reason','Motivo referido de atención',{max:1000}]
+  ]);
+  const updateIntake=()=>{const strict=$('intake-type').value!=='emergency';$('intake-policy').textContent=strict?'Consulta/hospitalización exige fecha, sede y servicio. Procedencia y motivo pueden estar ausentes.':'Urgencias admite ingreso, sede y servicio pendientes, con su razón. Ninguna ausencia se rellena con datos ficticios.';
+    ['admitted','site','service'].forEach(id=>{const f=adminFields.get(id);f.missing.hidden=strict||!!f.input.value;f.input.required=strict;});$('service').disabled=!$('site').value;$('intake-review').hidden=true;};
+  $('intake-type').onchange=updateIntake;$('site').addEventListener('change',()=>{$('service').value='';updateIntake();announce('Cambió la sede: selecciona otra vez el servicio.');});
+  $('now').onclick=()=>{const d=new Date(),local=new Date(d.getTime()-d.getTimezoneOffset()*60000);$('admitted').value=local.toISOString().slice(0,16);updateIntake();announce('Hora actual copiada al borrador. Revisa antes de confirmar.');};
+  const zone=Intl.DateTimeFormat().resolvedOptions().timeZone;$('zone').textContent=zone;document.querySelectorAll('.local-zone').forEach(el=>el.textContent=zone);
+  const vitalDefs=[['systolic','Presión sistólica · mmHg'],['diastolic','Presión diastólica · mmHg'],['heart-rate','Frecuencia cardiaca · lpm'],['respiratory-rate','Frecuencia respiratoria · rpm'],['temperature','Temperatura · °C'],['spo2','SpO₂ · %'],['weight','Peso · kg'],['height','Talla · cm']];
+  vitalDefs.forEach(([id,text])=>{const wrap=document.createElement('div');wrap.append(label(id,text));const input=document.createElement('input');input.id=id;input.type='number';input.step=['heart-rate','respiratory-rate'].includes(id)?'1':'0.01';wrap.append(input);const help=document.createElement('small');help.textContent='Vacío = no medido';wrap.append(help);$('measurements').append(wrap);});
+  const updateVitalContexts=()=>{$('bp-context').hidden=!($('systolic').value||$('diastolic').value);$('temp-context').hidden=!$('temperature').value;$('oxygen-context').hidden=!$('spo2').value;};
+  $('measurements').addEventListener('input',updateVitalContexts);$('oxygen').onchange=()=>{$('oxygen-details').hidden=$('oxygen').value!=='supplemental';};
+  valueField($('oxygen-flow'),'flow','Flujo · L/min',{type:'number',absences:['unknown','not_recorded']});
+  valueField($('reaction-field'),'reaction','Reacción referida',{max:500});
+  $('allergy-state').onchange=()=>{$('allergy-item').hidden=$('allergy-state').value!=='recorded';};
+  const noteDefs=[['reason','Motivo'],['relevant-history','Antecedentes relevantes'],['examination','Exploración'],['assessment','Valoración'],['narrative-plan','Plan narrativo']];
+  noteDefs.forEach(([id,text])=>{const key='note-'+id;$('note-fields').append(label(key,text));const textarea=document.createElement('textarea');textarea.id=key;textarea.maxLength=4000;$('note-fields').append(textarea);});
+  function resetClinicalForms(){
+    ['vitals','allergies','note'].forEach(id=>$(id).querySelectorAll('input,textarea,select').forEach(el=>{if(el.tagName==='SELECT')el.selectedIndex=0;else el.value='';}));
+    adminFields.get('reaction').select.value='not_provided';adminFields.get('reaction').missing.hidden=false;adminFields.get('flow').select.value='unknown';adminFields.get('flow').missing.hidden=false;
+    ['bp-context','temp-context','oxygen-context','oxygen-details','allergy-item','allergy-history','note-history'].forEach(id=>$(id).hidden=true);
+    ['vitals-error','allergy-error','note-error'].forEach(id=>$(id).textContent='');noteVersion=1;
+  }
+  function renderContext(){
+    const longitudinal=view==='longitudinal';$('banner').replaceChildren();const name=document.createElement('strong');name.textContent=current.name;$('banner').append(name,document.createElement('br'));
+    const details=document.createElement('span');details.textContent='Paciente PAC-000000000'+current.pac+' · Provisional · '+(longitudinal?'Vista longitudinal sin episodio seleccionado':'Episodio EPI-000000000'+current.id+' · '+current.label+' · Abierto');$('banner').append(details,document.createElement('br'));
+    const allergy=document.createElement('span');allergy.textContent='Alergias: '+current.allergy;$('banner').append(allergy);
+    if(!longitudinal){$('banner').append(document.createElement('br'));const intake=document.createElement('span');intake.textContent=current.admitted+' · '+(current.site?'Sede ficticia / Servicio ficticio':'Sede y servicio: no proporcionados');$('banner').append(intake);}
+    document.querySelectorAll('.allergy-summary').forEach(el=>el.textContent=current.allergy==='No documentado'?'No documentado: no equivale a sin alergias conocidas.':current.allergy);
+    $('last-vitals').textContent=current.vitals?'2026-10-03 10:00 UTC−06:00 · Captura 10:03 · enfermeria-demo. Registro histórico, consulta sus contextos.':'No hay mediciones registradas en esta atención.';
+    $('last-note').textContent=current.note?'Nota inicial · Borrador no firmado · medico-demo · Versión 1.':'No hay notas guardadas en esta atención.';
+    $('vitals-history').replaceChildren();const history=document.createElement('p');history.textContent=current.vitals?'Registro ficticio: TA 120/80 mmHg (sentado, brazo derecho), FC 80 lpm, FR 18 rpm, temperatura 36.7 °C (axilar), SpO₂ 97 % (aire ambiente). Medición 10:00, captura 10:03 UTC−06:00, enfermeria-demo.':'No hay mediciones registradas en esta atención.';$('vitals-history').append(history);$('trend').hidden=!current.vitals;
+    const readonly=$('actor').value!=='medico-demo';$('note').querySelectorAll('input,textarea').forEach(el=>{el.readOnly=readonly;el.classList.toggle('readonly',readonly);});$('save-note').disabled=readonly;$('note-conflict').disabled=readonly;
+    $('note-role').textContent=readonly?'Enfermería puede consultar el borrador según la propuesta D03; sólo su autor médico puede editar.':'Sólo puedes editar tu propia nota. Guarda explícitamente; no hay autoguardado ni firma.';
+    $('note-meta').textContent=current.note?'Autor: medico-demo · Captura ficticia: 2026-10-03 10:05 UTC−06:00 · Versión '+noteVersion:'Aún no hay borrador guardado en esta atención.';
+    if(current.note&&!$('note-change-reason').dataset.loaded){$('clinical-at').value='2026-10-03T10:00';$('note-change-reason').dataset.loaded='yes';$('note-fields').querySelector('textarea').value='Motivo ficticio de demostración. Pendiente de completar.';}
+    $('longitudinal-items').replaceChildren();encounters.filter(e=>e.pac===current.pac).forEach(e=>{const card=document.createElement('fieldset');const legend=document.createElement('legend');legend.textContent='EPI-000000000'+e.id+' · '+e.label;card.append(legend);const p=document.createElement('p');p.textContent=(e.vitals?'Mediciones históricas disponibles.':'Sin mediciones.')+' '+(e.note?'Borrador no firmado disponible.':'Sin notas.');card.append(p);const b=document.createElement('button');b.textContent='Abrir esta atención';b.className='secondary';b.onclick=()=>openEncounter(e);card.append(b);$('longitudinal-items').append(card);});
+  }
+  function openEncounter(encounter){
+    if(hasUnsavedClinical()&&!confirm('¿Descartar el borrador no guardado al cambiar de atención?'))return;
+    current=encounter;resetClinicalForms();delete $('note-change-reason').dataset.loaded;show('context');announce('Contexto cambiado a EPI-000000000'+current.id+'. Formularios anteriores descartados.');
+  }
+  function hasUnsavedClinical(){return ['vitals','allergies','note'].includes(view)&&[...$(view).querySelectorAll('input,textarea')].some(el=>el.value&&!el.readOnly);}
+  function renderAttentions(){
+    $('attention-rows').replaceChildren();const list=encounters.filter(e=>(!$('filter-type').value||e.type===$('filter-type').value)&&(!$('filter-site').value||e.site));
+    list.forEach(e=>{const tr=document.createElement('tr');[e.name+' · PAC-000000000'+e.pac,'EPI-000000000'+e.id+' · '+e.label,e.admitted+' · '+(e.site?'Sede ficticia / Servicio ficticio':'Sede: no proporcionada / Servicio: no proporcionado')].forEach(t=>{const td=document.createElement('td');td.textContent=t;tr.append(td);});const td=document.createElement('td'),button=document.createElement('button');button.textContent='Abrir atención';button.onclick=()=>openEncounter(e);td.append(button);tr.append(td);$('attention-rows').append(tr);});
+    $('page-count').textContent=list.length+' atenciones ficticias · Página 1 de 1';
+  }
+  function show(next){
+    document.querySelectorAll('main > section').forEach(el=>el.hidden=true);view=next;
+    const allowed=['patient','intake'].includes(next)?isAdmin():isClinical();$('banner').hidden=!allowed||['patient','intake','attentions'].includes(next);
+    if(!allowed){$('denied').hidden=false;$('denied').querySelector('h2').focus();return;}
+    $(next).hidden=false;if(isClinical()){renderContext();renderAttentions();}$(next).querySelector('h2').focus();
+  }
+  document.querySelectorAll('[data-view]').forEach(button=>button.onclick=()=>show(button.dataset.view));
+  $('actor').onchange=()=>{
+    document.querySelectorAll('main input,main textarea').forEach(el=>el.value='');document.querySelectorAll('main select').forEach(el=>el.selectedIndex=0);
+    adminFields.forEach(f=>{f.select.value=[...f.select.options].some(o=>o.value==='not_provided')?'not_provided':f.select.options[0].value;f.missing.hidden=false;});
+    ['phones','addresses','contacts'].forEach(id=>{const root=$(id);root.querySelectorAll('fieldset').forEach(el=>el.remove());root.querySelector('.absence').hidden=false;root.querySelector('p').hidden=true;root.querySelector('.actions button').disabled=false;});
+    $('identifiers').querySelectorAll('fieldset').forEach(el=>el.remove());$('identity-fields').hidden=false;$('identifiers').hidden=false;$('unknown-fields').hidden=true;$('evidence').hidden=true;
+    $('verification').hidden=$('actor').value!=='supervisor-demo';$('provisional').hidden=!$('verification').hidden;
+    searched=false;frozen=false;['patient-review','intake-review','uncertain'].forEach(id=>$(id).hidden=true);$('intake').querySelectorAll('input,select,button').forEach(el=>el.disabled=false);
+    resetClinicalForms();delete $('note-change-reason').dataset.loaded;updateIntake();show(isClinical()?'attentions':isAdmin()?'patient':'denied');announce('Actor cambiado. Se descartaron los formularios y resultados simulados.');
+  };
+  $('unidentified').onchange=()=>{
+    const unknown=$('unidentified').value==='yes';const group=unknown?$('identity-fields'):$('descriptors');const other=unknown?$('identifiers'):$('descriptors');
+    if([...new Set([...group.querySelectorAll('input'),...other.querySelectorAll('input')])].some(i=>i.value)&&!confirm('¿Descartar los datos incompatibles con este tipo de identidad?')){$('unidentified').value=unknown?'no':'yes';return;}
+    group.querySelectorAll('input').forEach(i=>{i.value='';if(adminFields.has(i.id))adminFields.get(i.id).missing.hidden=false;});if(unknown){$('identifiers').querySelectorAll('fieldset').forEach(el=>el.remove());$('verified').value='no';$('evidence').hidden=true;}
+    $('identity-fields').hidden=unknown;$('identifiers').hidden=unknown;$('unknown-fields').hidden=!unknown;$('verified').disabled=unknown;searched=false;$('patient-review').hidden=true;
+  };
+  $('verified').onchange=()=>{$('evidence').hidden=$('verified').value!=='yes';$('patient-review').hidden=true;};
+  $('patient').addEventListener('input',()=>{searched=false;$('patient-review').hidden=true;});
+  $('patient').addEventListener('change',()=>{searched=false;$('patient-review').hidden=true;});
+  $('search-patient').onclick=()=>{searched=true;announce('Búsqueda simulada sin coincidencias. En la aplicación se consultará API y su evidencia vigente.');};
+  $('review-patient').onclick=()=>{
+    const incomplete=[...$('patient').querySelectorAll('[data-required]')].some(i=>!i.value.trim());const addressInvalid=[...$('addresses').querySelectorAll('fieldset')].some(box=>![...box.querySelectorAll('[data-address]')].some(i=>i.value.trim()));
+    if(incomplete||addressInvalid){$('patient-error').textContent='Completa o quita el elemento incompleto. Domicilio requiere al menos un componente.';return;}
+    const ageMin=$('age-min').value,ageMax=$('age-max').value;
+    if($('unidentified').value==='yes'&&(ageMin||ageMax)&&(!ageMin||!ageMax||![ageMin,ageMax].every(v=>Number.isInteger(Number(v))&&Number(v)>=0&&Number(v)<=150)||Number(ageMin)>Number(ageMax))){$('patient-error').textContent='Edad estimada requiere ambos extremos enteros, de 0 a 150, y mínimo no mayor que máximo.';return;}
+    if(!searched){$('patient-error').textContent='Simula primero la búsqueda previa con los datos vigentes.';return;}
+    if($('verified').value==='yes'&&(!$('names').value.trim()||!$('source-reference').value.trim()||($('second-id').value==='birth_date'?!$('birth').value:![...$('identifiers').querySelectorAll('fieldset')].some(box=>box.querySelector('select').value==='CURP'&&box.querySelector('input').value)))){$('patient-error').textContent='La verificación requiere nombre más nacimiento/CURP y fuente descriptiva.';return;}
+    $('patient-error').textContent='';const unknown=$('unidentified').value==='yes';const keys=unknown?['apparent-sex','features','origin-description','transfer']:['names','family','second','birth'];
+    const lines=['Identidad: '+(unknown?'Desconocida, provisional':$('verified').value==='yes'?'Verificación documentada propuesta':'Provisional')];keys.concat(['sex','nationality']).forEach(id=>lines.push(adminFields.get(id).text+': '+readField(id)));
+    if(unknown)lines.push('Edad estimada: '+(ageMin&&ageMax?ageMin+'–'+ageMax+' años':reasons[adminFields.get('age-min').select.value]));
+    ['phones','addresses','contacts'].forEach(id=>lines.push($(id).summary()));const identifiers=[...$('identifiers').querySelectorAll('fieldset')].map(box=>box.querySelector('select').value+': '+box.querySelector('input').value);if(!unknown)lines.push('Identificadores: '+(identifiers.join(' · ')||'Ninguno declarado'));
+    if($('verified').value==='yes')lines.push('Fuente: '+$('source-kind').selectedOptions[0].text+' · '+$('source-reference').value.trim()+'\nContrastados: nombre y '+$('second-id').selectedOptions[0].text);
+    $('patient-summary').textContent=lines.join('\n');$('patient-review').hidden=false;
+  };
+  $('confirm-patient').onclick=()=>{announce('Alta simulada confirmada. No se creó un paciente en la base de datos.');$('patient-review').hidden=true;};
+  $('review-intake').onclick=()=>{const strict=$('intake-type').value!=='emergency';if(strict&&['admitted','site','service'].some(id=>!$(id).value)){$('intake-error').textContent='Este tipo requiere fecha efectiva de ingreso, sede y servicio.';return;}if($('service').value&&!$('site').value){$('intake-error').textContent='Servicio requiere sede.';return;}
+    $('intake-error').textContent='';$('intake-summary').textContent='Persona Alfa Ficticia · PAC-000000000301\nTipo: '+$('intake-type').selectedOptions[0].text+'\n'+['admitted','site','service','intake-origin','intake-reason'].map(id=>adminFields.get(id).text+': '+readField(id)).join('\n')+'\nZona: '+zone;$('intake-review').hidden=false;};
+  $('confirm-intake').onclick=()=>{announce('Apertura simulada confirmada: EPI-000000000499. No se escribió en PostgreSQL.');$('intake-review').hidden=true;};
+  $('lost-intake').onclick=()=>{frozen=true;$('intake').querySelectorAll('input,select,button').forEach(el=>el.disabled=true);$('uncertain').hidden=false;$('retry-intake').disabled=false;announce('Respuesta perdida simulada: conserva el mismo intento congelado.');};
+  $('retry-intake').onclick=()=>{if(!frozen)return;frozen=false;$('uncertain').hidden=true;$('intake-review').hidden=true;$('intake').querySelectorAll('input,select,button').forEach(el=>el.disabled=false);updateIntake();announce('Mismo intento simulado confirmado: EPI-000000000499; sin segundo folio.');};
+  ['filter-type','filter-site','filter-service'].forEach(id=>$(id).onchange=()=>{if(id==='filter-site'){$('filter-service').value='';$('filter-service').disabled=!$('filter-site').value;}renderAttentions();});
+  $('save-vitals').onclick=()=>{const values=vitalDefs.filter(([id])=>$(id).value!=='');let message='';
+    if(!$('measured-at').value||!values.length)message='Indica fecha clínica y al menos una medición.';
+    else if(!!$('systolic').value!==!!$('diastolic').value)message='Presión arterial requiere sistólica y diastólica.';
+    else if(!$('bp-context').hidden&&(!$('position').value||!$('arm').value))message='Elige posición y brazo, o su ausencia.';
+    else if(!$('temp-context').hidden&&!$('temperature-site').value)message='Indica sitio de temperatura o su ausencia.';
+    else if(!$('oxygen-context').hidden&&!$('oxygen').value)message='Selecciona el contexto de oxígeno.';
+    else if($('oxygen').value==='supplemental'&&!$('oxygen-device').value.trim())message='Indica el dispositivo de oxígeno suplementario.';
+    $('vitals-error').textContent=message;if(message)return;announce('Registro simulado en EPI-000000000'+current.id+'. La validación completa y persistencia corresponden a V3-04.');};
+  $('save-allergy').onclick=()=>{let message='';if(!$('allergy-state').value||!$('reviewed-at').value||!$('allergy-source').value||!$('allergy-reason').value.trim())message='Selecciona estado, fecha, fuente y motivo.';
+    else if(['document','clinical_staff'].includes($('allergy-source').value)&&!$('allergy-reference').value.trim())message='Esta fuente requiere referencia descriptiva.';
+    else if($('allergy-state').value==='recorded'&&(!$('substance').value.trim()||!$('item-source').value))message='Indica sustancia y fuente del elemento.';
+    else if($('allergy-state').value==='recorded'&&['document','clinical_staff'].includes($('item-source').value)&&!$('item-reference').value.trim())message='La fuente del elemento requiere referencia descriptiva.';
+    $('allergy-error').textContent=message;if(message)return;
+    if(current.allergy.startsWith('Registradas:')&&$('allergy-state').value!=='recorded'&&!confirm('¿Registrar otra declaración? La alergia anterior seguirá en el historial.'))return;
+    const description=$('allergy-state').value==='recorded'?'Registradas: '+$('substance').value.trim()+' · Reacción: '+readField('reaction'):$('allergy-state').value==='unknown'?'Desconocido':'Sin alergias conocidas, según fuente';
+    encounters.filter(e=>e.pac===current.pac).forEach(e=>e.allergy=description);renderContext();announce('Declaración simulada para PAC-000000000'+current.pac+'. Historial/persistencia se implementarán en V3-05.');};
+  $('allergy-conflict').onclick=()=>{$('allergy-error').textContent='Conflicto de versión simulado. Tu captura se conserva; consulta la versión vigente antes de una nueva intención.';};
+  $('allergy-versions').onclick=()=>{$('allergy-history').hidden=false;$('allergy-history').textContent='Ejemplo de historial (simulado, sin persistencia):\nVersión 2 · Nueva declaración · 2026-10-03 11:00 UTC−06:00 · medico-demo\nVersión 1 · Alergia referida a Sustancia Ficticia · 2026-10-03 10:00 UTC−06:00 · enfermeria-demo\nVersiones conservadas; el estado vigente puede ser distinto.';};
+  $('save-note').onclick=()=>{if($('actor').value!=='medico-demo')return;const texts=[...$('note-fields').querySelectorAll('textarea')].map(t=>t.value.trim());const message=!$('clinical-at').value||!texts.some(Boolean)?'Indica fecha clínica y escribe al menos una sección.':current.note&&!$('note-change-reason').value.trim()?'Indica el motivo de la nueva versión.':'';$('note-error').textContent=message;if(message)return;if(current.note)noteVersion++;current.note=true;$('note-change-reason').dataset.loaded='yes';$('note-meta').textContent='Borrador simulado · medico-demo · Versión '+noteVersion;announce('Borrador no firmado simulado. El plan narrativo no genera acciones clínicas.');};
+  $('note-conflict').onclick=()=>{$('note-error').textContent='Conflicto de versión simulado. Texto conservado en memoria. Compara con la versión vigente antes de guardar una nueva intención.';};
+  $('note-versions').onclick=()=>{$('note-history').hidden=false;$('note-history').textContent='Ejemplo ficticio: versión 2 y versión 1, ambas Borrador no firmado. Autor y modificador: medico-demo; fechas de captura propias. La API futura conservará el texto completo de cada versión.';};
+  updateIntake();renderAttentions();
+</script>
+</body>
+</html>

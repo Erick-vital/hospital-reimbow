@@ -6,6 +6,8 @@ y V2-06 recuperación y entrega técnica.
 [Estado](../ESTADO.md), [plan](../plans/v2-interfaz-admision.md),
 [contrato](contrato-v2.md) y [evidencia](evidencia-v2-03.md).
 Sólo datos ficticios. La identidad demo no autentica personas.
+Para el árbol vigente con migración 0007 y actores clínicos, usar la
+[guía V3](desarrollo-v3.md); esta guía conserva el recorrido administrativo V2.
 
 ## Preparación
 
@@ -56,8 +58,8 @@ paginación; no consulta un listado global. Los filtros viven sólo en memoria.
 URLs `/patients/{UUID}` y `/admissions/{UUID}` resuelven ficha administrativa,
 episodios paginados e ingreso autorizado; conservan PAC/EPI separados, recarga y
 navegación atrás. La cabecera del paciente permanece visible al desplazarse.
-Calidad documentada y declaración anterior sin evidencia se distinguen; el expediente
-clínico no está implementado. Sede/servicio conocidos muestran UUID: sus catálogos
+Calidad documentada y declaración anterior sin evidencia se distinguen; la consulta
+clínica acotada V3-03 se documenta por separado en la guía V3. Sede/servicio conocidos muestran UUID: sus catálogos
 requieren admissions.create y no se solicitan para ampliar permisos de lectura.
 Referencias ficticias y guion M2-02 en [evidencia V2-04](evidencia-v2-04.md).
 
@@ -93,7 +95,8 @@ VITE_DEMO_IDENTITY=true npm --prefix frontend run build
 npm --prefix frontend run test:e2e
 ```
 
-Validación completa/repetible vigente (V2-06):
+Verificador histórico de la entrega V2-06 (fija migraciones anteriores;
+para el árbol V3 usar la guía V3):
 
 ```sh
 backend/.venv/bin/python backend/scripts/verify_v2_06.py
@@ -177,3 +180,22 @@ La confirmación recibe foco para uso por teclado. El verificador V2-06 repite
 preparación dos veces y migra una base nueva aislada conservada; no instala paquetes
 ni interrumpe PostgreSQL compartido. Para probar base inaccesible usa una API propia
 con conexión a un puerto loopback sin PostgreSQL; respuesta 503 real.
+
+## Captura directa V3-02
+
+La presentación administrativa usa ahora valores visibles desde el inicio.
+Las razones aparecen sólo al faltar un dato y se recuerdan al escribir/borrar.
+No proporcionado inicia explícito; desconocido y no aplica se ofrecen según campo.
+Alta con datos disponibles sigue provisional salvo verificación autorizada.
+
+Añadir filas no requiere seleccionar conocido. «Ninguno declarado» expresa
+known/[]; dejar la lista sin declarar o quitar última fila conserva ausencia.
+Completar/quitar filas antes de revisar. Cambio de identidad con datos pide
+confirmar descarte; cambiar sede limpia servicio con aviso. Hora actual requiere
+acción explícita. Confirmación resume valores/ausencias; reintentos V2 mantienen
+cuerpo/clave congelados. API, permisos y validadores backend conservan V2.
+
+Comandos de typecheck/build/test:e2e anteriores siguen vigentes; 51 pruebas
+navegador/API y 316 backend comprobadas en [V3-02](evidencia-v3-02.md).
+El usuario completó la revisión manual del formulario/prueba V3-02; el resto
+de M3-02 sigue pendiente. No se sobrescribieron capturas V2.

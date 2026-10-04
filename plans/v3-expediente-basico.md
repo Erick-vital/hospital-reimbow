@@ -1,9 +1,13 @@
 # V3 — Formularios simples y expediente clínico básico
 
-Fecha: 2026-10-03. Estado: **plan preparado; implementación no iniciada**.
-Preparación solicitada por el usuario. La simplificación y el crecimiento funcional
-del MVP son prioridades confirmadas; el recorte clínico concreta la recomendación
-conversada. Crear este plan no autoriza iniciar V3. V2-06 sigue siendo la tarea activa.
+Fecha: 2026-10-03. Estado: **V3-03 cerrada técnicamente; revisión funcional final pendiente**.
+El usuario autorizó comenzar la primera etapa y después solicitó cerrarla,
+aplazando la inspección visual hasta disponer de funcionalidad al final de V3.
+La simplificación y el crecimiento funcional del MVP son prioridades confirmadas.
+V2-01–06 tienen cierre técnico y commit `cc86c8e`; sus revisiones humanas pendientes
+se conservan. D01–D06 quedan como base de diseño revisable en la entrega funcional;
+no se registra una inspección realizada ni aprobación individual de esas decisiones.
+V3-02 y V3-03 implementadas por autorización posterior explícita; V3-04–07 sin iniciar.
 
 ## Objetivo y recorrido
 
@@ -51,47 +55,76 @@ triage/alertas clínicas, camas/traslados, egreso, cobros, documentos e integrac
 
 ### V3-01 — Diseño y contrato acotados
 
-- [ ] Revisar los apartados pertinentes de requerimientos y elaborar contrato de
+Estado: **cerrada el 2026-10-03 por instrucción explícita del usuario**.
+[Contrato revisión 1](../docs/contrato-v3.md), [boceto navegable](../docs/bocetos-v3.html),
+[matriz](../docs/validacion-v3.md), [evidencia/guion](../docs/evidencia-v3-01.md).
+
+- [x] Revisar los apartados pertinentes de requerimientos y elaborar contrato de
   entradas/salidas, permisos, ausencias, fechas, versiones y errores.
-- [ ] Preparar bocetos de formularios directos, tablero, cabecera clínica,
-  signos vitales, alergias y nota; revisar primero los formularios con el usuario.
-- [ ] Definir actores médico-demo/enfermeria-demo, permisos por operación y
-  acceso de consulta. Precisar si se usa acceso demo global o asignaciones mínimas;
-  no etiquetar como «mis pacientes» un listado sin asignaciones implementadas.
-- [ ] Acordar plantilla de nota, mediciones/unidades/contextos admitidos y
-  contenido mínimo de alergias. No inventar umbrales diagnósticos o alertas.
-- [ ] Registrar matriz de aceptación, límites y respuesta funcional M3-01.
+- [x] Preparar bocetos de formularios directos, tablero, cabecera clínica,
+  signos vitales, alergias y nota; comprobación local desktop/móvil documentada.
+- [x] Registrar aplazamiento de la inspección visual de formularios a la entrega
+  funcional final, solicitado por el usuario; no se realizó M3-01.
+- [x] Definir propuesta de actores medico-demo/enfermeria-demo y permisos por
+  operación, acceso de consulta y aislamiento de actores administrativos.
+- [x] Conservar D02/D03 como base de diseño tras el cierre solicitado: acceso demo
+  global y lectura compartida de borradores; no usar «mis pacientes» sin asignaciones.
+- [x] Conservar plantilla, mediciones/unidades/contextos y mínimo de alergias
+  D04–D06 como base revisable al final. Sin umbrales/alertas inventados.
+- [x] Registrar matriz de aceptación, cobertura parcial y límites.
+- [x] Registrar respuesta explícita: cerrar V3-01 y aplazar inspección visual;
+  conservar aprobación funcional para el recorrido final M3-02.
 
 Aceptación: contrato y diseño revisables, cada campo y acción con regla definida;
-ausencias diferenciadas y roles sin privilegios implícitos. Resolver estas decisiones
-antes de construir sus flujos dependientes; avanzar trabajo independiente autorizado.
+ausencias diferenciadas y roles sin privilegios implícitos. La instrucción reciente
+del usuario sustituye la revisión visual previa por revisión de la funcionalidad
+al final; D01–D06 quedan como base, sin bloquear dependientes por M3-01.
+Conservar los criterios técnicos de todas las etapas y la aceptación final M3-02.
 
 ### V3-02 — Simplificar formularios administrativos (prioridad obligatoria)
 
-- [ ] Mostrar directamente nombre, nacimiento y demás campos habituales;
+Estado: **cierre técnico el 2026-10-03**.
+[Evidencia y comandos](../docs/evidencia-v3-02.md): TypeScript/build correctos,
+51 pruebas navegador/API y 316 backend PostgreSQL pasan. Revisión manual de
+formulario y prueba completada por el usuario; sin cambios de API, permisos,
+migraciones o configuración.
+
+- [x] Mostrar directamente nombre, nacimiento y demás campos habituales;
   inferir `known` cuando haya un valor válido, sin selector previo repetido.
-- [ ] Ofrecer razones de ausencia cuando falte un dato, con opciones pertinentes
+- [x] Ofrecer razones de ausencia cuando falte un dato, con opciones pertinentes
   por campo. No confundir desconocido, no proporcionado y no aplicable.
-- [ ] Separar disponibilidad de verificación; conservar búsqueda previa,
+- [x] Separar disponibilidad de verificación; conservar búsqueda previa,
   evidencia cuando corresponda, permisos y descriptores del desconocido.
-- [ ] Aplicar el patrón a paciente/ingreso y listas de contactos; mantener
+- [x] Aplicar el patrón a paciente/ingreso y listas de contactos; mantener
   confirmación explícita, accesibilidad y reintentos con cuerpo/clave congelados.
-- [ ] Verificar navegador/API y regresión: no inventar valores, no perder
+- [x] Verificar navegador/API y regresión: no inventar valores, no perder
   ausencias al revisar y no invalidar el contrato administrativo existente.
+- [x] Revisión manual del formulario administrativo y la prueba realizada por
+  el usuario el 2026-10-03; confirma que puede tacharse esta parte del plan.
 
 Aceptación: registrar paciente y urgencia sin escoger «conocido» para cada valor;
 un dato ausente conserva su significado y una identidad disponible sigue pudiendo
-ser provisional. M3-01 precede a implementar el diseño concreto de estos formularios.
+ser provisional. Aplicar D01 como base de diseño; revisión manual de esta parte
+completada posteriormente por el usuario. El resto de M3-02 sigue pendiente.
 
 ### V3-03 — Lista de atenciones y contexto clínico
 
-- [ ] Lista paginada de episodios abiertos, con filtros por tipo/sede/servicio
+Estado: **cierre técnico el 2026-10-03**, autorización «implementa V3-03».
+[Evidencia y comandos](../docs/evidencia-v3-03.md), [guía](../docs/desarrollo-v3.md):
+339 backend PostgreSQL y 57 navegador/API pasan; TypeScript/build correctos.
+Migración 0007 y actores clínicos preparados en hospital_dev/hospital_test.
+Sólo tres permisos clínicos implementados; administrativos con listas explícitas.
+Semilla conserva UUID, suspensiones y permisos/asignaciones revocados.
+Signos/alergias/notas sin secciones simuladas; C04 de esos módulos se comprobará
+al implementarlos en V3-04–06. Revisión funcional final M3-02 pendiente.
+
+- [x] Lista paginada de episodios abiertos, con filtros por tipo/sede/servicio
   que estén disponibles; paciente identificado por nombre autorizado y PAC/EPI.
-- [ ] API y permisos clínicos explícitos; sin listado de demografía/intake
+- [x] API y permisos clínicos explícitos; sin listado de demografía/intake
   restringidos ni ampliación de los permisos de consulta-demo.
-- [ ] Vista clínica por episodio y acceso longitudinal del paciente, con cabecera
+- [x] Vista clínica por episodio y acceso longitudinal del paciente, con cabecera
   permanente, cambio de contexto evidente y estados vacíos honestos.
-- [ ] Mostrar sólo secciones implementadas y separar información de otras
+- [x] Mostrar sólo secciones implementadas y separar información de otras
   atenciones; limpiar contexto, borradores y resultados al cambiar paciente/actor.
 
 Aceptación: localizar dos episodios, abrirlos y regresar sin mezclar información;
@@ -164,7 +197,7 @@ expresamente; mientras falte, declarar revisión pendiente.
 | Fuente original | Entrega V3 | Límite |
 |---|---|---|
 | Pacientes §5–10/13 y Admisión §8–11 | V3-02, presentación simple de captura/ausencias | No ampliar administración de identidad. |
-| Médico §27–29 | V3-03, lista y contexto de atenciones | No tablero completo, asignaciones/turnos pendientes de decisión. |
+| Médico §27–29 | V3-03, lista y contexto de atenciones | Acceso demo global como base; sin tablero completo, asignaciones ni turnos. |
 | Expediente §4–7, EHR-RF-001/002 | V3-03, consulta longitudinal/por episodio de datos implementados | No expediente completo ni vista por problema. |
 | Enfermería §10–11 y Expediente §23 | V3-04, mediciones/contexto/historial | No escalas, alertas, triage ni tareas de turno. |
 | Expediente §12, EHR-RF-010 | V3-05, alergias compartidas y estados explícitos | No motor de interacciones ni conciliación farmacológica. |
@@ -180,10 +213,21 @@ No modificar documentos originales para hacerlos coincidir con el MVP.
 
 ## Revisiones y siguiente paso
 
-M3-01: contrato/bocetos y especialmente formularios; revisión antes de implementarlos.
+M3-01: [respuesta y entregables](../docs/evidencia-v3-01.md); inspección del boceto
+aplazada por el usuario. V3-01 cerrada; D01–D06 son la base de diseño revisable.
 M3-02: recorrido ficticio paciente → episodio → mediciones/alergias → borrador →
-consulta compartida, con errores/reintentos y permisos. Ambas pendientes.
+consulta compartida, con errores/reintentos y permisos. Incorporar la inspección
+visual de formularios y vistas implementadas; aprobación funcional final pendiente.
 
-Primero cerrar V2-06 y su commit solicitado. Cuando se autorice implementar V3,
-iniciar V3-01 y registrar decisiones pendientes, sin asumir aprobado un diseño clínico
-por la sola creación de este documento. No hay etapas V3 implementadas ni probadas.
+V2-06 y su commit ya están cerrados técnicamente. V3-01 cerrada por instrucción:
+21 comprobaciones locales del boceto pasaron, sin errores de script; capturas
+desktop/móvil inspeccionadas técnicamente. No prueban API/PostgreSQL ni aceptación
+humana. Riesgo de semilla global identificado en V3-01 y resuelto en V3-03:
+Admisión/Supervisor conservan listas administrativas explícitas.
+V3-02 cerrada técnicamente tras autorización explícita de implementación;
+[evidencia](../docs/evidencia-v3-02.md) y matriz A01–A07 comprobadas.
+V3-03 cerrada técnicamente: lista/contexto/longitudinal, permisos y auditoría
+comprobados en [evidencia](../docs/evidencia-v3-03.md).
+Siguiente etapa: V3-04, signos vitales; V3-04–07 sin iniciar y sin autorización
+de implementación por esta entrega. Cierre técnico no equivale a aceptación funcional.
+M3-01 no bloquea las etapas siguientes; revisiones V2 conservan estado separado.

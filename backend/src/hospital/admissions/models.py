@@ -15,6 +15,7 @@ class Admission(Base):
         CheckConstraint("type IN ('emergency', 'outpatient', 'inpatient')", name='type'),
         CheckConstraint("status = 'open'", name='status'),
         CheckConstraint("folio ~ '^EPI-[0-9]{12,}$'", name='folio_format'),
+        Index('ix_admissions_open_created_at_id', 'created_at', 'id', postgresql_where=text("status = 'open'")),
         Index('ix_admissions_patient_id_created_at_id', 'patient_id', 'created_at', 'id'),
     )
     id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4, server_default=text('gen_random_uuid()'))

@@ -9,6 +9,7 @@ PERMISSIONS = frozenset({
     "patients.search", "patients.read", "patients.read_demographics",
     "patients.create", "patients.verify_identity", "admissions.create",
     "admissions.read", "admissions.read_intake", "audit.read",
+    "clinical.attentions.read", "clinical.context.read", "clinical.catalogs.read",
 })
 
 # Operaciones compuestas: un permiso de campos nunca concede acceso al recurso.
@@ -24,6 +25,9 @@ OPERATION_PERMISSIONS = {
     "admissions.replay": ("admissions.create",),
     "catalogs.read": ("admissions.create",),
     "audit.read": ("audit.read",),
+    "clinical.attentions.read": ("patients.read", "admissions.read", "clinical.context.read", "clinical.attentions.read"),
+    "clinical.context.read": ("patients.read", "admissions.read", "clinical.context.read"),
+    "clinical.catalogs.read": ("clinical.context.read", "clinical.catalogs.read"),
 }
 
 

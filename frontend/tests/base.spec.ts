@@ -58,7 +58,7 @@ test('B03 · build incluso con bandera true excluye selector y actores', async (
   expect(scripts.some(name => name.includes('DemoSelector'))).toBe(false)
   for (const file of scripts) {
     const source = readFileSync('dist/assets/' + file, 'utf8')
-    for (const forbidden of ['Actor de demostración', 'admision-demo', 'supervisor-demo', 'X-Dev-Actor']) expect(source).not.toContain(forbidden)
+    for (const forbidden of ['Actor de demostración', 'admision-demo', 'supervisor-demo', 'medico-demo', 'enfermeria-demo', 'X-Dev-Actor']) expect(source).not.toContain(forbidden)
   }
 })
 

@@ -1,7 +1,7 @@
 from datetime import datetime
 from uuid import UUID, uuid4
 
-from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, ForeignKeyConstraint, Integer, String, UniqueConstraint, text
+from sqlalchemy import Boolean, CheckConstraint, DateTime, ForeignKey, ForeignKeyConstraint, Integer, Index, String, UniqueConstraint, text
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -72,6 +72,7 @@ class Service(Base):
 class AdmissionIntake(Base):
     __tablename__ = 'admission_intakes'
     __table_args__ = (
+        Index('ix_admission_intakes_site_service', 'site_id', 'service_id'),
         ForeignKeyConstraint(['site_id', 'service_id'], ['admission_services.site_id', 'admission_services.id'], ondelete='RESTRICT', name='fk_admission_intakes_site_service'),
         CheckConstraint('v2_intake_valid(data) IS TRUE', name='intake_valid'),
         CheckConstraint("(data->'site_id'->>'value')::uuid IS NOT DISTINCT FROM site_id AND (data->'service_id'->>'value')::uuid IS NOT DISTINCT FROM service_id", name='catalog_values'),

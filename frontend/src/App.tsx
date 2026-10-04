@@ -1,3 +1,4 @@
+import { AttentionList, ClinicalContext } from './clinical/ClinicalViews'
 import { lazy, Suspense, useEffect, useLayoutEffect, useState, useSyncExternalStore } from 'react'
 import { BrowserRouter, Link, NavLink, Navigate, Route, Routes, useLocation, useParams } from 'react-router'
 import { ApiError } from './api/client'
@@ -61,7 +62,10 @@ function Gate({ identity, permissions, children }: { identity: Identity; permiss
 
 function Areas({ session, identity }: { session: Session; identity: Identity }) {
   return <Routes>
-    <Route path="/" element={<Navigate to="/patients" replace />} />
+    <Route path="/clinical/attentions" element={<Gate identity={identity} permissions={['patients.read', 'admissions.read', 'clinical.context.read', 'clinical.attentions.read']}><AttentionList session={session} identity={identity} /></Gate>} />
+    <Route path="/clinical/attentions/:episodeId" element={<Gate identity={identity} permissions={['patients.read', 'admissions.read', 'clinical.context.read']}><ClinicalContext session={session} /></Gate>} />
+    <Route path="/clinical/patients/:patientId" element={<Gate identity={identity} permissions={['patients.read', 'admissions.read', 'clinical.context.read']}><ClinicalContext session={session} longitudinal /></Gate>} />
+    <Route path="/" element={<Navigate to={has(identity, "clinical.attentions.read") ? "/clinical/attentions" : "/patients"} replace />} />
     <Route path="/patients" element={<Gate identity={identity} permissions={['patients.search']}><PatientSearch session={session} identity={identity} /></Gate>} />
     <Route path="/patients/new" element={<Gate identity={identity} permissions={['patients.create', 'patients.search']}><PatientRegistration session={session} identity={identity} /></Gate>} />
     <Route path="/patients/:patientId" element={<Gate identity={identity} permissions={['patients.read']}><PatientArea session={session} identity={identity} /></Gate>} />
@@ -90,16 +94,17 @@ function Workspace({ session, state }: { session: Session; state: SessionSnapsho
   return <div className="app-shell">
     <a className="skip-link" href="#main">Ir al contenido</a>
     <aside className="sidebar">
-      <Link to="/patients" className="brand" aria-label="Reimbow HIS, inicio"><span className="brand-mark" aria-hidden="true">+</span><span>reimbow<small>HOSPITAL INFORMATION SYSTEM</small></span></Link>
+      <Link to="/" className="brand" aria-label="Reimbow HIS, inicio"><span className="brand-mark" aria-hidden="true">+</span><span>reimbow<small>HOSPITAL INFORMATION SYSTEM</small></span></Link>
       <div className="sidebar-section">ESPACIO DE TRABAJO</div>
       <nav aria-label="Navegación principal">
+        {has(state.identity, "patients.read", "admissions.read", "clinical.context.read", "clinical.attentions.read") && <NavLink to="/clinical/attentions">Atenciones abiertas</NavLink>}
         {has(state.identity, 'patients.search') && <NavLink to="/patients" end><span aria-hidden="true">○</span> Pacientes</NavLink>}
         {has(state.identity, 'audit.read') && <NavLink to="/audit"><span aria-hidden="true">≡</span> Auditoría</NavLink>}
       </nav>
       <div className="sidebar-note"><span className="status-dot" aria-hidden="true" />Entorno local<small>Datos ficticios · Demostración</small></div>
     </aside>
     <div className="workspace">
-      <header className="topbar"><div><span className="section-label">Reimbow HIS</span><h1>Pacientes y Admisión</h1></div>
+      <header className="topbar"><div><span className="section-label">Reimbow HIS</span><h1>{location.pathname.startsWith("/clinical") ? "Consulta clínica" : "Pacientes y Admisión"}</h1></div>
         <div className="connection"><span className={`status-dot ${state.phase !== 'ready' ? 'pending' : ''}`} aria-hidden="true" />
           {state.phase === 'ready' ? 'Acceso comprobado' : 'Validación de acceso'}</div>
       </header>
@@ -107,7 +112,7 @@ function Workspace({ session, state }: { session: Session; state: SessionSnapsho
         <Suspense fallback={<Loading message="Cargando selector…" />}><DemoSelector actorKey={state.actorKey} onChange={actor => session.changeActor(actor)} /></Suspense>
       </div>}
       <main id="main" tabIndex={-1}>
-        <div className="breadcrumb">ESPACIO DE TRABAJO <span>/</span> PACIENTES Y ADMISIÓN</div>
+        <div className="breadcrumb">ESPACIO DE TRABAJO <span>/</span> {location.pathname.startsWith("/clinical") ? "CONSULTA CLÍNICA" : "PACIENTES Y ADMISIÓN"}</div>
         {state.path !== location.pathname || state.phase === 'loading' || state.phase === 'idle' ? <Loading />
           : ready && state.identity ? <Areas key={`${state.generation}:${location.pathname}`} session={session} identity={state.identity} />
             : <ErrorNotice error={state.error ?? new ApiError(401, 'IDENTITY_REQUIRED')} retry={session.refresh} />}

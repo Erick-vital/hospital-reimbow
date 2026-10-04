@@ -1,0 +1,27 @@
+{
+  "scope": "Boceto local únicamente; sin API/PostgreSQL ni aceptación humana",
+  "checks": [
+    "Campos directos visibles",
+    "Razón oculta con valor",
+    "Razón restaurada al borrar",
+    "Confirmación conserva ausencia de contacto",
+    "Urgencia admite ingreso pendiente",
+    "Intención simulada congelada",
+    "Mismo intento simulado",
+    "Consulta exige ingreso/sede/servicio",
+    "Tres atenciones ficticias",
+    "Filtro excluye sede pendiente",
+    "Cabecera PAC/EPI",
+    "Conflicto simulado conserva texto",
+    "Enfermería consulta sin edición",
+    "Contexto de oxígeno visible",
+    "Consulta-demo denegada en simulación",
+    "Otro episodio sin registros anteriores",
+    "Estado longitudinal simulado compartido",
+    "Sin desbordamiento móvil",
+    "Campos etiquetados",
+    "Identificadores DOM únicos",
+    "Sin errores de script"
+  ],
+  "errors": []
+}
